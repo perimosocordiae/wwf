@@ -1,5 +1,5 @@
 from os.path import join as pjoin
-from itertoolsplus import combinations,product,chain,permutations
+from itertools import combinations,product,chain,permutations
 from heapq import nlargest
 from collections import defaultdict
 import time
