@@ -1,4 +1,4 @@
-#!/usr/bin/env pypy
+#!/usr/bin/env python
 import sys,os
 from copy import deepcopy
 from scrabble import make_board,top_moves,read_dictionary
