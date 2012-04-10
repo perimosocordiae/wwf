@@ -1,0 +1,19 @@
+$def with (args,board,moves)
+<head>
+<title>$args.board</title>
+<link type="text/css" rel="stylesheet" href="/static/wwf.css">
+</head>
+<body>
+<form action="/" method=GET>
+<div class=linput>HTML:<input type=text name=html value="$args.html" /> or</div>
+<div class=rinput>File:<input type=text name=board value="$args.board" /><br>
+Hand:<input type=text name=hand value="$args.hand" /></div>
+<input type=submit value="Go!" id='go' />
+</form>
+$if board:
+  <table border=1><tr><th>Board</th><th>Info</th></tr>
+  $for score,words,play in moves:
+    <tr><td>$:board_as_html(board,play)</td>
+    <td style='font-size:$score px'>$score : ${', '.join(words)}</td></tr>
+  </table>
+</body>

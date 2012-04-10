@@ -1,0 +1,103 @@
+div.linput { float: left; padding-right: 1em; }
+div.linput input { line-height: 3em; }
+div.rinput { float: left; }
+#go { font-size:large; margin: 0.5em 1em;}
+
+body { background: #fff; font: 11px/16px "Helvetica Neue", Helvetica, Arial, sans-serif; margin-top : 15px; *margin-top : 0; position: relative; -webkit-font-smoothing: antialiased; }
+textarea {  resize: none;}
+
+a           { color: #f1aa0b; text-decoration: none; }
+a:hover     { cursor: pointer; text-decoration: underline; }
+abbr        { border: none; }
+input       { font: 11px "Helvetica Neue", Helvetica, Arial, sans-serif; }
+input:focus { outline: none; }
+
+/* div.tile            { background: url(/images/desktop/piece.png) -63px 0 no-repeat; color: #4e1c00; cursor: pointer; height: 36px; line-height: 1; overflow: hidden; position: relative; width: 36px; z-index: 100; } */
+div.tile            { color: #4e1c00; cursor: pointer; height: 36px; line-height: 1; overflow: hidden; position: relative; width: 36px; z-index: 100; }
+div.tile span       { display: block; position: absolute; }
+div.tile .letter    { font-size: 28px; font-weight: bold; left: 0; text-align: center; text-transform: uppercase; top: 5px; width: 30px; z-index: 2; }
+div.tile .points    { font-size: 10px; right: 6px; top: 2px; }
+div.tile .points-10 { right: 3px; }
+div.tile .points-0, .space > span.points-0 { display: none; }
+
+.board div.tile { background-position: -99px 0; height: 35px; width: 35px; }
+.board div.tile .letter, .space > span.tile   { font-size: 24px; top: 7px; width: 31px; }
+.board div.tile .points, .space > span.points { font-size: 10px; right: 4px; top: 4px; }
+.board          { background: url(https://wwf-fb.static.zgncdn.com/images/themeboards/board/default.png) no-repeat; height: 525px; position: relative; width: 525px; z-index: 9; }
+
+.space                    { background: url(https://wwf-fb.static.zgncdn.com/images/themeboards/meld/meld_yellow.png) 35px 35px no-repeat; float: left; width: 35px; height: 35px; line-height: 1; position: relative; }
+.space > span             { display: block; font-weight: bold; position: absolute; text-align: center; text-transform: uppercase; }
+.space > span.tile        { z-index: 2; }
+.space > span.points      { font-weight: normal; z-index: 2; }
+.space.recent > span.tile { color: #fff; }
+.space.max_zindex { z-index: 9999; }
+
+/*
+.space > span.badge  { color: #fff, text-shadow: 0 1px 1px #000; z-index: 101; }
+.space > span.badge.score       { background-image: url(badge.png); color: #fff; font-size: 9px; line-height: 14px; right: 0; text-shadow: 0 1px 1px #000; bottom:0px; width: 14px; z-index: 3; }
+.space > span.badge.ds    { color: #fff; text-shadow: 0 1px 1px #000; background-image: url(/images/badge_ds.png); font-size: 13px; line-height: 20px; width: 21px; height: 21px; bottom: -5px; right: -5px;}
+.space > span.badge.ds.three_digits { font-size: 0.9em; }
+.space > span.badge.top_edge  { top: 0; }
+.space > span.badge.right_edge   { right: 0; } 
+.space > span.badge.bottom_edge  { bottom: 0; }
+.space > span.badge.left_edge  { left: 0; }
+*/
+
+.mt { background-position: 0 0; }
+.mb { background-position: -35px 0; }
+.ml { background-position: -70px 0; }
+.mr { background-position: -105px 0; }
+
+.mt.ml  { background-position: -140px 0; }
+.mt.mr  { background-position: -175px 0; }
+.mb.ml  { background-position: -210px 0; }
+.mb.mr  { background-position: -245px 0; }
+
+.mt.mb  { background-position: -280px 0; }
+.ml.mr  { background-position: -315px 0; }
+
+.mt.ml.mtl { background-position: -350px 0; }
+.mt.mr.mtr { background-position: -385px 0; }
+.mb.ml.mbl { background-position: -420px 0; }
+.mb.mr.mbr { background-position: -455px 0; }
+
+.mt.ml.mr         { background-position: -490px 0; }
+.mt.ml.mr.mtl     { background-position: -525px 0; }
+.mt.ml.mr.mtr     { background-position: -560px 0; }
+.mt.ml.mr.mtl.mtr { background-position: -595px 0; }
+
+.mb.ml.mr         { background-position: -630px 0; }
+.mb.ml.mr.mbl     { background-position: -665px 0; }
+.mb.ml.mr.mbr     { background-position: -700px 0; }
+.mb.ml.mr.mbl.mbr { background-position: -735px 0; }
+
+.mt.mb.ml         { background-position: 0 -35px; }
+.mt.mb.ml.mtl     { background-position: -35px -35px; }
+.mt.mb.ml.mbl     { background-position: -70px -35px; }
+.mt.mb.ml.mtl.mbl { background-position: -105px -35px; }
+
+.mt.mb.mr         { background-position: -140px -35px; }
+.mt.mb.mr.mtr     { background-position: -175px -35px; }
+.mt.mb.mr.mbr     { background-position: -210px -35px; }
+.mt.mb.mr.mtr.mbr { background-position: -245px -35px; }
+
+.mf.mtl { background-position: -280px -35px; }
+.mf.mtr { background-position: -315px -35px; }
+.mf.mbl { background-position: -350px -35px; }
+.mf.mbr { background-position: -385px -35px; }
+
+.mf.mtl.mtr { background-position: -420px -35px; }
+.mf.mbl.mbr { background-position: -455px -35px; }
+.mf.mtl.mbl { background-position: -490px -35px; }
+.mf.mtr.mbr { background-position: -525px -35px; }
+.mf.mtl.mbr { background-position: -560px -35px; }
+.mf.mtr.mbl { background-position: -595px -35px; }
+
+.mf.mtr.mbr.mbl { background-position: -630px -35px; }
+.mf.mtl.mbr.mbl { background-position: -665px -35px; }
+.mf.mtl.mtr.mbl { background-position: -700px -35px; }
+.mf.mtl.mtr.mbr { background-position: -735px -35px; }
+
+.mf                 { background-position: -770px 0; }
+.mf.mtl.mtr.mbl.mbr { background-position: -770px -35px; }
+

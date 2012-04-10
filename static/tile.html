@@ -1,0 +1,6 @@
+$def with (letter,recent,stype,mergers,r,c,value)
+<div class="space_${r}_${c} space $stype $mergers $recent">
+$if letter:
+  <span class="tile letter-$letter">$letter</span>
+  <span class="points points-$value">$value</span>
+</div>
