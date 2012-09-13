@@ -14,11 +14,12 @@ def show_board(board,play=None):
     show_board(b)
 
 if __name__ == '__main__':
-  assert len(sys.argv) == 3, 'Usage: ./scrabble.py boardfile hand'
+  assert len(sys.argv) >= 3, 'Usage: ./scrabble.py boardfile hand [num_moves]'
   board = make_board(open(sys.argv[1]))
   hand = sys.argv[2].upper()
   path = os.path.dirname(sys.argv[0])
-  for score,words,play in top_moves(board,read_dictionary(path),hand):
+  num_moves = int(sys.argv[3]) if len(sys.argv) > 3 else 20
+  for score,words,play in top_moves(board,read_dictionary(path),hand,num_moves):
     print score, ', '.join(words)
     show_board(board,play)
     print ''
