@@ -155,7 +155,7 @@ def valid_plays(board):
       while ci < BOARD_SIZE and is_letter(board[r][ci]): ci += 1
       if ci == BOARD_SIZE: break
     for _ in xrange(7):
-      v_play.append((ri,c))
+      v_play.append((ri,c))   # bug here, modifying v_play after appending it
       if next_to_existing(board,v_play):
         valid_plays[len(v_play)].append(v_play)
       ri += 1
