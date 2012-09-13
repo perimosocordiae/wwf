@@ -1,2 +1,10 @@
 *.pyc
 words.txt
+
+*.hi
+
+*.o
+
+*.prof
+
+haskell/wwf
