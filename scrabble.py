@@ -1,7 +1,7 @@
-from os.path import join as pjoin
-from itertools import combinations,product,chain,permutations
-from heapq import nlargest
 from collections import defaultdict
+from heapq import nlargest
+from os.path import join as pjoin
+import itertools
 import time
 
 WORDS_FILE = 'words.txt'
@@ -108,12 +108,13 @@ def find_words(board,playdict,r,c):
       ri += 1
     if len(word) >= 2:
       yield word
-  return chain(find_horiz(),find_vert())
+  return itertools.chain(find_horiz(),find_vert())
 
 
 def all_words(board,play):
   pd = dict(((r,c),x) for x,r,c in play)
-  return chain.from_iterable(find_words(board,pd,r,c) for x,r,c in play)
+  words = (find_words(board,pd,r,c) for x,r,c in play)
+  return itertools.chain.from_iterable(words)
 
 
 def score_play(board,words,play):
@@ -145,27 +146,32 @@ def next_to_existing(board,play):
 
 def powerset_nonempty(seq):
   s = list(seq)
-  return chain.from_iterable(combinations(s, r) for r in xrange(1,len(s)+1))
+  return itertools.chain.from_iterable(itertools.combinations(s, r)
+                                       for r in xrange(1,len(s)+1))
 
 
 def letter_combos(hand):
   lcs = defaultdict(set)
   if '.' not in hand:
-    for combo_types in powerset_nonempty(hand):
-      for combo in permutations(combo_types):
-        lcs[len(combo)].add(combo)
-  else:
-    hands = (hand.replace('.',x,1) for x in ALPHABET.lower())
-    for h in hands:
-      for l,cs in letter_combos(h).iteritems():
-        lcs[l].update(cs)
+    _letter_combos(hand, lcs)
+    return lcs
+  h = hand.replace('.', '')
+  for wilds in itertools.combinations_with_replacement(ALPHABET.lower(),
+                                                       hand.count('.')):
+    _letter_combos(h + ''.join(wilds), lcs)
   return lcs
+
+
+def _letter_combos(hand, lcs):
+  # Assumes no wildcards, updates lcs in place!
+  for combo_types in powerset_nonempty(hand):
+    lcs[len(combo_types)].update(itertools.permutations(combo_types))
 
 
 def valid_plays(board):
   # precompute possible play locations
   valid_plays = dict((n,[]) for n in xrange(1,8))
-  for r,c in product(xrange(BOARD_SIZE),xrange(BOARD_SIZE)):
+  for r,c in itertools.product(xrange(BOARD_SIZE),xrange(BOARD_SIZE)):
     if is_letter(board[r][c]):
       continue
     h_play,v_play = [],[]
@@ -195,8 +201,8 @@ def valid_moves(valid_plays,hand):
   valid_moves = set()
   lcs = letter_combos(hand)
   print "got letter combos:", dict((n,len(lcs[n])) for n in lcs.iterkeys())
-  for i in lcs.iterkeys():
-    for letters,play in product(lcs[i],valid_plays[i]):
+  for i,combos in lcs.iteritems():
+    for letters,play in itertools.product(combos, valid_plays[i]):
       move = tuple((l,r,c) for l,(r,c) in zip(letters,play))
       valid_moves.add(move)
   return valid_moves
