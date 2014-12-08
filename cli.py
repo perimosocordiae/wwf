@@ -25,6 +25,9 @@ def main():
     op.error('Must provide boardfile and hand as arguments')
   board = make_board(open(args[0]))
   hand = args[1].upper()
+  if (len(hand) < 1 or len(hand) > 7 or
+      not all(x.isalpha() or x == '.' for x in hand)):
+    op.error('Invalid hand: must be 1 to 7 letters or blanks (.)')
   word_list = read_dictionary(os.path.dirname(__file__))
   for score, words, play in top_moves(board, word_list, hand, opts.num_plays):
     print score, ', '.join(words)
@@ -33,4 +36,3 @@ def main():
 
 if __name__ == '__main__':
   main()
-
