@@ -1,9 +1,11 @@
 #!/usr/bin/env python
-import sys,os
+import os
 from copy import deepcopy
+from optparse import OptionParser
 from scrabble import make_board,top_moves,read_dictionary
 
-def show_board(board,play=None):
+
+def show_board(board, play=None):
   if not play:
     for row in board:
       print ''.join(row)
@@ -13,13 +15,22 @@ def show_board(board,play=None):
       b[r][c] = x.lower()
     show_board(b)
 
-if __name__ == '__main__':
-  assert len(sys.argv) >= 3, 'Usage: ./scrabble.py boardfile hand [num_moves]'
-  board = make_board(open(sys.argv[1]))
-  hand = sys.argv[2].upper()
-  path = os.path.dirname(sys.argv[0])
-  num_moves = int(sys.argv[3]) if len(sys.argv) > 3 else 20
-  for score,words,play in top_moves(board,read_dictionary(path),hand,num_moves):
+
+def main():
+  op = OptionParser(usage='%prog [-n 20] boardfile hand')
+  op.add_option('-n', '--num-plays', type=int, default=20,
+                help='Number of possible plays to display')
+  opts, args = op.parse_args()
+  if len(args) != 2:
+    op.error('Must provide boardfile and hand as arguments')
+  board = make_board(open(args[0]))
+  hand = args[1].upper()
+  word_list = read_dictionary(os.path.dirname(__file__))
+  for score, words, play in top_moves(board, word_list, hand, opts.num_plays):
     print score, ', '.join(words)
-    show_board(board,play)
+    show_board(board, play)
     print ''
+
+if __name__ == '__main__':
+  main()
+
