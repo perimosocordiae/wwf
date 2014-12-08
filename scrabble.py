@@ -6,12 +6,6 @@ import time
 
 WORDS_FILE = 'words.txt'
 BOARD_SIZE = 15
-SPECIALS = {
-    '2':[(2,1),(4,2),(6,4)],  # double letter
-    '3':[(6,0),(3,3),(5,5)],  # triple letter
-    '@':[(5,1),(7,3)],        # double word
-    '#':[(3,0)],              # triple word
-}
 BINGO_BONUS = 35
 ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 LETTER_VALUES = dict((x,1) for x in ALPHABET)
@@ -23,23 +17,31 @@ WILDS = set()
 
 
 def make_board(fh):
-  board = [['_' for _ in xrange(BOARD_SIZE)] for _ in xrange(BOARD_SIZE)]
-  mid = BOARD_SIZE//2
-  #board[mid][mid] = '*'
-  for bonus,coords in SPECIALS.iteritems():
-    for i,j in coords:
-      i2 = mid-i+mid
-      j2 = mid-j+mid
-      board[i][j] = board[j][i] = board[i2][j] = board[j][i2] = \
-      board[i][j2] = board[j2][i] = board[i2][j2] = board[j2][i2] = bonus
+  # 2 = double letter, 3 = triple letter
+  # @ = double word, # = triple word
+  board = map(list, [
+      "___#__3_3__#___",
+      "__2__@___@__2__",
+      "_2__2_____2__2_",
+      "#__3___@___3__#",
+      "__2___2_2___2__",
+      "_@___3___3___@_",
+      "3___2_____2___3",
+      "___@_______@___",
+      "3___2_____2___3",
+      "_@___3___3___@_",
+      "__2___2_2___2__",
+      "#__3___@___3__#",
+      "_2__2_____2__2_",
+      "__2__@___@__2__",
+      "___#__3_3__#___"])
   if fh:
-    data = [x.strip('\n') for x in fh]
+    data = [x.strip('\n').upper() for x in fh]
     assert len(data) == BOARD_SIZE and len(data[0]) == BOARD_SIZE
     for r,row in enumerate(data):
       for c,letter in enumerate(row):
-        l = letter.upper()
-        if 'A' <= l <= 'Z':
-          board[r][c] = l
+        if 'A' <= letter <= 'Z':
+          board[r][c] = letter
   return board
 
 
@@ -47,15 +49,11 @@ def word_to_string(word):
   return ''.join(x for x,r,c in word).upper()
 
 
-def base_value(x,r,c):
- return LETTER_VALUES[x] if x in LETTER_VALUES else 0
-
-
 def score_word(board,word):
   s = 0
   mult = 1
   for x,r,c in word:
-    base_val = base_value(x,r,c)
+    base_val = LETTER_VALUES.get(x, 0)
     space = board[r][c]
     s += base_val
     if space == '2':
