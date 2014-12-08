@@ -1,17 +1,25 @@
 #!/usr/bin/env python
-
-import web, re, os
+import web
+import re
+import os
 from BeautifulSoup import BeautifulSoup as BS
 from scrabble import make_board,top_moves,read_dictionary,BOARD_SIZE,base_value
 
+PATH = os.path.dirname(__file__)
+board_render = web.template.frender(PATH+'/static/board.html')
+tile_render = web.template.frender(PATH+'/static/tile.html')
+
+
 def parse_letter(soup_letter):
   m = re.search('space_(\d+)_(\d+)',soup_letter['class'])
-  if not m: return
+  if not m:
+    return
   c,r = map(int,m.groups())
   letter,value = soup_letter.text[0],int(soup_letter.text[1:])
   if value >= 1:
     letter = letter.upper()
   return letter,r,c
+
 
 def parse_html(html_blob):
   soup = BS(html_blob)
@@ -23,10 +31,8 @@ def parse_html(html_blob):
     board[r][c] = x
   return board,hand
 
-PATH = os.path.dirname(__file__)
-board_render = web.template.frender(PATH+'/static/board.html')
-tile_render = web.template.frender(PATH+'/static/tile.html')
-def board_as_html(board,play=()):
+
+def board_as_html(board, play=()):
   trans = {'2':'dl','3':'tl','@':'dw','#':'tw','_':''}
   pd = dict(((r,c),x) for x,r,c in play)
   is_tile = lambda r,c: board[r][c] not in trans or (r,c) in pd
@@ -35,7 +41,7 @@ def board_as_html(board,play=()):
     for c,space in enumerate(row):
       letter,recent,stype,value = '','','',0
       if (r,c) in pd:
-        recent = 'recent' 
+        recent = 'recent'
         letter = pd[(r,c)]
       if space in trans:
         stype = trans[space]
@@ -69,7 +75,8 @@ words = read_dictionary(PATH)
 render = web.template.frender(PATH+'/static/template.html',
                               globals={'board_as_html':board_as_html})
 
-class WWF:
+
+class WWF(object):
   def GET(self):
     args = web.input(board='',html='',hand='')
     if args.html:
@@ -86,4 +93,3 @@ class WWF:
 if __name__ == '__main__':
   app = web.application(('/','WWF'),globals())
   app.run()
-
