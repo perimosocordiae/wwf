@@ -34,7 +34,7 @@ def parse_html(html_blob):
 
 def board_as_html(board, play=()):
   trans = {'2':'dl','3':'tl','@':'dw','#':'tw','_':''}
-  pd = dict(((r,c),x) for x,r,c in play)
+  pd = dict(play)
   is_tile = lambda r,c: board[r][c] not in trans or (r,c) in pd
   tiles = []
   for r,row in enumerate(board):

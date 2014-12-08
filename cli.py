@@ -11,7 +11,7 @@ def show_board(board, play=None):
       print ''.join(row)
   else:
     b = deepcopy(board)
-    for x,r,c in play:
+    for (r,c),x in play:
       b[r][c] = x.lower()
     show_board(b)
 

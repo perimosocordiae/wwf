@@ -112,8 +112,8 @@ def find_words(board,playdict,r,c):
 
 
 def all_words(board,play):
-  pd = dict(((r,c),x) for x,r,c in play)
-  words = (find_words(board,pd,r,c) for x,r,c in play)
+  pd = dict(play)
+  words = (find_words(board,pd,r,c) for (r,c),x in play)
   return itertools.chain.from_iterable(words)
 
 
@@ -179,16 +179,17 @@ def valid_plays(board):
     for _ in xrange(7):
       h_play.append((r,ci))
       if next_to_existing(board,h_play):
-        valid_plays[len(h_play)].append(h_play)
+        valid_plays[len(h_play)].append(tuple(h_play))
       ci += 1
       while ci < BOARD_SIZE and is_letter(board[r][ci]):
         ci += 1
       if ci == BOARD_SIZE:
         break
     for _ in xrange(7):
-      v_play.append((ri,c))   # bug here, modifying v_play after appending it
-      if next_to_existing(board,v_play):
-        valid_plays[len(v_play)].append(v_play)
+      v_play.append((ri,c))
+      # Avoid double-adding length-1 plays here.
+      if len(v_play) > 1 and next_to_existing(board,v_play):
+        valid_plays[len(v_play)].append(tuple(v_play))
       ri += 1
       while ri < BOARD_SIZE and is_letter(board[ri][c]):
         ri += 1
@@ -197,33 +198,47 @@ def valid_plays(board):
   return valid_plays
 
 
-def valid_moves(valid_plays,hand):
-  valid_moves = set()
-  lcs = letter_combos(hand)
-  print "got letter combos:", dict((n,len(lcs[n])) for n in lcs.iterkeys())
+def valid_moves(valid_plays, lcs):
   for i,combos in lcs.iteritems():
     for letters,play in itertools.product(combos, valid_plays[i]):
-      move = tuple((l,r,c) for l,(r,c) in zip(letters,play))
-      valid_moves.add(move)
-  return valid_moves
+      yield zip(play,letters)
 
 
-def positive_scoring_moves(board,words,hand):
-  t0 = time.time()
+def shrink_wordlist(wordlist, hand):
+  # reduce wordlist size to only words containing at least one from the hand
+  return set(w for w in wordlist if any(h in w for h in hand))
+
+
+def positive_scoring_moves(board,wordlist,hand):
+  if '.' not in hand:
+    pre_size = len(wordlist)
+    tic = time.time()
+    wordlist = shrink_wordlist(wordlist, hand)
+    toc = time.time()
+    print '%f secs, wordlist shrunk from %d to %d' % (
+        toc-tic, pre_size, len(wordlist))
+
+  tic = time.time()
   plays = valid_plays(board)
-  t1 = time.time()
-  play_counts = dict((n,len(plays[n])) for n in plays.iterkeys())
-  print "%f secs, valid play counts: %s" % (t1-t0, play_counts)
-  moves = valid_moves(plays,hand)
-  t2 = time.time()
-  print "%f secs, valid move count:" % (t2-t1), len(moves)
-  #TODO: reduce wordset size to only words containing at least one from the hand
-  for move in moves:
-    score = score_play(board,words,move)
+  toc = time.time()
+  play_counts = dict((n,len(p)) for n,p in plays.iteritems())
+  print "%f secs, valid play counts: %s" % (toc-tic, play_counts)
+
+  tic = time.time()
+  lcs = letter_combos(hand)
+  toc = time.time()
+  lc_counts = dict((n,len(lc)) for n,lc in lcs.iteritems())
+  print "%f secs, letter combos: %s" % (toc-tic, lc_counts)
+
+  tic = time.time()
+  num_moves = 0
+  for move in valid_moves(plays, lcs):
+    num_moves += 1
+    score = score_play(board, wordlist, move)
     if score > 0:
       yield score,move
-  t3 = time.time()
-  print "%f secs, done" % (t3-t2)
+  toc = time.time()
+  print "%f secs, scored %d moves" % (toc-tic, num_moves)
 
 
 def read_dictionary(path=''):
