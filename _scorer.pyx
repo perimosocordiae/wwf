@@ -1,104 +1,182 @@
-from itertools import chain
-import string
-
+# cython: boundscheck=False
+# cython: wraparound=False
+# cython: nonecheck=False
 __all__ = ['word_to_string', 'score_play', 'all_words']
 
-cdef int BINGO_BONUS = 35
-cdef int* LETTER_VALUES = [
-    1, 4, 4, 2, 1, 4, 3, 3, 1, 10, 5, 2, 4,  # A - M
-    2, 1, 4, 10, 1, 1, 1, 2, 5, 4, 8, 3, 10  # N - Z
-]
+cdef:
+  int BINGO_BONUS = 35
+  int BOARD_SIZE = 15
+  int* LETTER_VALUES = [
+      1, 4, 4, 2, 1, 4, 3, 3, 1, 10, 5, 2, 4,  # A - M
+      2, 1, 4, 10, 1, 1, 1, 2, 5, 4, 8, 3, 10  # N - Z
+  ]
 
+cdef class HorizWord:
+  cdef char[16] letters
+  cdef int r_idx
+  cdef int[15] c_idxs
+  cdef int length
 
-def word_to_string(word):
-  return ''.join(x for x,r,c in word).upper()
+  cdef int score(self, list board):
+    cdef char* space
+    cdef char* letters = self.letters
+    cdef int base_val, i, r = self.r_idx, s = 0, mult = 1
+    cdef list board_row = board[r]
+    cdef int* c_idxs = self.c_idxs
+    for i in range(self.length):
+      base_val = letter_value(letters[i])
+      space = board_row[c_idxs[i]]
+      s += base_val
+      if space[0] == '2':
+        s += base_val
+      elif space[0] == '3':
+        s += 2*base_val
+      elif space[0] == '@':
+        mult *= 2
+      elif space[0] == '#':
+        mult *= 3
+    return s*mult
 
+cdef class VertWord:
+  cdef char[16] letters
+  cdef int[15] r_idxs
+  cdef int c_idx
+  cdef int length
 
-cdef int letter_value(bytes x):
+  cdef int score(self, list board):
+    cdef char* space
+    cdef char* letters = self.letters
+    cdef int base_val, i, c = self.c_idx, s = 0, mult = 1
+    cdef int* r_idxs = self.r_idxs
+    for i in range(self.length):
+      base_val = letter_value(letters[i])
+      space = board[r_idxs[i]][c]
+      s += base_val
+      if space[0] == '2':
+        s += base_val
+      elif space[0] == '3':
+        s += 2*base_val
+      elif space[0] == '@':
+        mult *= 2
+      elif space[0] == '#':
+        mult *= 3
+    return s*mult
+
+ctypedef fused Word:
+  HorizWord
+  VertWord
+
+cpdef bytes word_to_string(Word word):
+  return word.letters
+
+cdef int letter_value(char x):
   if x == '.':
     return 0
-  cdef char* xx = x
-  return LETTER_VALUES[xx[0] - 65]
+  return LETTER_VALUES[x - 65]
 
 
-cdef int score_word(board,word):
-  cdef int base_val
-  cdef char* space
-  cdef int s = 0
-  cdef int mult = 1
-  for x,r,c in word:
-    base_val = letter_value(x)
-    space = board[r][c]
-    s += base_val
-    if space[0] == '2':
-      s += base_val
-    elif space[0] == '3':
-      s += 2*base_val
-    elif space[0] == '@':
-      mult *= 2
-    elif space[0] == '#':
-      mult *= 3
-  return s*mult
-
-
-#TODO: DRY this up
-def _find_horiz(board,playdict,r,c):
+cdef HorizWord _find_horiz(list board, dict playdict, int r, int c):
   cdef int ci = c
-  cdef int board_size = len(board)
-  while ci > 0 and board[r][ci-1].isalpha():
-    ci -= 1
+  cdef bytes tmp
+  cdef char space
+  while ci > 0:
+    tmp = board[r][ci-1]
+    space = (<char*>tmp)[0]
+    if space >= 'A' and space <= 'Z':
+      ci -= 1
+    else:
+      break
   if ci > 0 and (r,ci-1) in playdict:
     return
-  word = []
-  while ci < board_size:
-    if board[r][ci].isalpha():
-      word.append((board[r][ci],r,ci))
+  cdef HorizWord w = HorizWord()
+  cdef int i = 0
+  while ci < BOARD_SIZE:
+    tmp = board[r][ci]
+    space = (<char*>tmp)[0]
+    if space >= 'A' and space <= 'Z':
+      w.letters[i] = space
+      w.c_idxs[i] = ci
     elif (r,ci) in playdict:
-      word.append((playdict[(r,ci)],r,ci))
+      tmp = playdict[(r,ci)]
+      space = (<char*>tmp)[0]
+      w.letters[i] = space
+      w.c_idxs[i] = ci
     else:
       break
     ci += 1
-  if len(word) >= 2:
-    yield word
+    i += 1
+  if i >= 2:
+    w.r_idx = r
+    w.length = i
+    return w
 
 
-def _find_vert(board,playdict,r,c):
+cdef VertWord _find_vert(list board, dict playdict, int r, int c):
   cdef int ri = r
-  cdef int board_size = len(board)
-  while ri > 0 and board[ri-1][c].isalpha():
-    ri -= 1
+  cdef bytes tmp
+  cdef char space
+  while ri > 0:
+    tmp = board[ri-1][c]
+    space = (<char*>tmp)[0]
+    if space >= 'A' and space <= 'Z':
+      ri -= 1
+    else:
+      break
   if ri > 0 and (ri-1,c) in playdict:
     return
-  word = []
-  while ri < board_size:
-    if board[ri][c].isalpha():
-      word.append((board[ri][c],ri,c))
+  cdef VertWord w = VertWord()
+  cdef int i = 0
+  while ri < BOARD_SIZE:
+    tmp = board[ri][c]
+    space = (<char*>tmp)[0]
+    if space >= 'A' and space <= 'Z':
+      w.letters[i] = space
+      w.r_idxs[i] = ri
     elif (ri,c) in playdict:
-      word.append((playdict[(ri,c)],ri,c))
+      tmp = playdict[(ri,c)]
+      space = (<char*>tmp)[0]
+      w.letters[i] = space
+      w.r_idxs[i] = ri
     else:
       break
     ri += 1
-  if len(word) >= 2:
-    yield word
+    i += 1
+  if i >= 2:
+    w.c_idx = c
+    w.length = i
+    return w
 
 
-def find_words(board,playdict,r,c):
-  return chain(_find_horiz(board,playdict,r,c),
-               _find_vert(board,playdict,r,c))
+def all_words(list board, play):
+  cdef HorizWord hword
+  cdef VertWord vword
+  cdef dict playdict = dict(play)
+  cdef int r, c
+  for (r,c),_ in play:
+    hword = _find_horiz(board,playdict,r,c)
+    if hword is not None:
+      yield hword
+    vword = _find_vert(board,playdict,r,c)
+    if vword is not None:
+      yield vword
 
 
-def all_words(board,play):
-  pd = dict(play)
-  words = (find_words(board,pd,r,c) for (r,c),x in play)
-  return chain.from_iterable(words)
-
-
-def score_play(board,words,play):
-  cdef int score = 0
-  for w in all_words(board,play):
-    if word_to_string(w) not in words:
-      return 0
-    score += score_word(board,w)
+cpdef int score_play(list board, set words, play):
+  cdef int score = 0, r, c
+  cdef HorizWord hword
+  cdef VertWord vword
+  cdef dict playdict = dict(play)
+  for (r,c),_ in play:
+    hword = _find_horiz(board,playdict,r,c)
+    if hword is not None:
+      if word_to_string(hword) not in words:
+        return 0
+      score += hword.score(board)
+    vword = _find_vert(board,playdict,r,c)
+    if vword is not None:
+      if word_to_string(vword) not in words:
+        return 0
+      score += vword.score(board)
   if len(play) == 7:
     score += BINGO_BONUS
   return score
