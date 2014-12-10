@@ -1,7 +1,7 @@
 from itertools import chain
 import string
 
-__all__ = ['word_to_string', 'score_play', 'all_words']
+__all__ = ['Scorer', 'all_words']
 BINGO_BONUS = 35
 LETTER_VALUES = dict((x,1) for x in string.uppercase)
 for v,ltrs in ((0, '.'), (2, 'DLNU'), (3, 'GHY'), (4, 'BCFMPW'),
@@ -10,26 +10,51 @@ for v,ltrs in ((0, '.'), (2, 'DLNU'), (3, 'GHY'), (4, 'BCFMPW'),
     LETTER_VALUES[l] = v
 
 
+class Scorer(object):
+  def __init__(self, board, wordlist):
+    self.board = board
+    self.wordlist = wordlist
+
+  def score_play(self, play):
+    score = 0
+    for w in all_words_raw(self.board, play):
+      if word_to_string(w) not in self.wordlist:
+        return 0
+      score += self._score_word(w)
+    if len(play) == 7:
+      score += BINGO_BONUS
+    return score
+
+  def _score_word(self, word):
+    s = 0
+    mult = 1
+    for x,r,c in word:
+      base_val = LETTER_VALUES.get(x, 0)
+      space = self.board[r][c]
+      s += base_val
+      if space == '2':
+        s += base_val
+      elif space == '3':
+        s += 2*base_val
+      elif space == '@':
+        mult *= 2
+      elif space == '#':
+        mult *= 3
+    return s*mult
+
+
+def all_words(board, play):
+  return map(word_to_string, all_words_raw(board, play))
+
+
+def all_words_raw(board, play):
+  pd = dict(play)
+  words = (find_words(board,pd,r,c) for (r,c),x in play)
+  return chain.from_iterable(words)
+
+
 def word_to_string(word):
   return ''.join(x for x,r,c in word).upper()
-
-
-def score_word(board,word):
-  s = 0
-  mult = 1
-  for x,r,c in word:
-    base_val = LETTER_VALUES.get(x, 0)
-    space = board[r][c]
-    s += base_val
-    if space == '2':
-      s += base_val
-    elif space == '3':
-      s += 2*base_val
-    elif space == '@':
-      mult *= 2
-    elif space == '#':
-      mult *= 3
-  return s*mult
 
 
 def find_words(board,playdict,r,c):
@@ -72,20 +97,3 @@ def find_words(board,playdict,r,c):
     if len(word) >= 2:
       yield word
   return chain(find_horiz(),find_vert())
-
-
-def all_words(board,play):
-  pd = dict(play)
-  words = (find_words(board,pd,r,c) for (r,c),x in play)
-  return chain.from_iterable(words)
-
-
-def score_play(board,words,play):
-  score = 0
-  for w in all_words(board,play):
-    if word_to_string(w) not in words:
-      return 0
-    score += score_word(board,w)
-  if len(play) == 7:
-    score += BINGO_BONUS
-  return score

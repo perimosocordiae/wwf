@@ -8,10 +8,10 @@ import time
 try:
   import pyximport
   pyximport.install()
-  from _scorer import score_play, word_to_string, all_words
+  from _scorer import Scorer, all_words
   print 'Using Cython (fast) scorer'
 except ImportError:
-  from scorer import score_play, word_to_string, all_words
+  from scorer import Scorer, all_words
   print 'Using Python (slow) scorer'
 
 WORDS_FILE = 'words.txt'
@@ -151,10 +151,11 @@ def positive_scoring_moves(board,wordlist,hand):
   print "%f secs, letter combos: %s" % (toc-tic, lc_counts)
 
   tic = time.time()
+  scorer = Scorer(board, wordlist)
   num_moves = 0
   for move in valid_moves(plays, lcs):
     num_moves += 1
-    score = score_play(board, wordlist, move)
+    score = scorer.score_play(move)
     if score > 0:
       yield score,move
   toc = time.time()
@@ -169,4 +170,4 @@ def top_moves(board,wordlist,hand,n=20):
   assert 1 <= len(hand) <= 7
   moves = positive_scoring_moves(board,wordlist,hand.upper())
   for score,play in nlargest(n,moves):
-    yield score, map(word_to_string,all_words(board,play)), play
+    yield score, all_words(board, play), play
