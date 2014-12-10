@@ -168,6 +168,6 @@ def read_dictionary(path=''):
 
 def top_moves(board,wordlist,hand,n=20):
   assert 1 <= len(hand) <= 7
-  moves = positive_scoring_moves(board,wordlist,hand.upper())
+  moves = positive_scoring_moves(board,wordlist,hand.encode('ascii').upper())
   for score,play in nlargest(n,moves):
     yield score, all_words(board, play), play

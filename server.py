@@ -3,7 +3,8 @@ import web
 import re
 import os
 from BeautifulSoup import BeautifulSoup as BS
-from scrabble import make_board,top_moves,read_dictionary,BOARD_SIZE,base_value
+from scrabble import make_board,top_moves,read_dictionary,BOARD_SIZE
+from scorer import LETTER_VALUES
 
 PATH = os.path.dirname(__file__)
 board_render = web.template.frender(PATH+'/static/board.html')
@@ -49,7 +50,7 @@ def board_as_html(board, play=()):
         letter = space
       mergers = []
       if letter:
-        value = base_value(letter,r,c)
+        value = LETTER_VALUES.get(letter, 0)
         if r>0 and is_tile(r-1,c):
           mergers.append('mt')
         if r+1<BOARD_SIZE and is_tile(r+1,c):
