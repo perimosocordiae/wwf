@@ -24,9 +24,11 @@ def print_blocks(blocks, num_cols=4):
 
 
 def main():
-  op = OptionParser(usage='%prog [-n 20] boardfile hand')
-  op.add_option('-n', '--num-plays', type=int, default=20,
+  op = OptionParser(usage='%prog [-n 8] boardfile hand')
+  op.add_option('-n', '--num-plays', type=int, default=8,
                 help='Number of possible plays to display')
+  op.add_option('-c', '--num-cols', type=int, default=4,
+                help='Number of columns of plays to display')
   opts, args = op.parse_args()
   if len(args) != 2:
     op.error('Must provide boardfile and hand as arguments')
@@ -41,7 +43,7 @@ def main():
     header = ('%d %s' % (score, ', '.join(words))).center(15)
     # TODO: add padding when len(header) > 15
     blocks.append([header] + board_rows(board, play))
-  print_blocks(blocks)
+  print_blocks(blocks, num_cols=opts.num_cols)
 
 if __name__ == '__main__':
   main()
