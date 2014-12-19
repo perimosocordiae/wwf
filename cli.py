@@ -6,11 +6,14 @@ from optparse import OptionParser
 from scrabble import make_board,top_moves,read_dictionary
 
 
-def board_rows(board, play=None):
+def board_rows(board, play=None, colors=True):
   if play:
     b = deepcopy(board)
     for (r,c),x in play:
-      b[r][c] = '\033[95m' + x.lower() + '\033[0m'
+      x = x.lower()
+      if colors:
+        x = '\033[95m' + x + '\033[0m'
+      b[r][c] = x
     return board_rows(b)
   return [''.join(row) for row in board]
 
