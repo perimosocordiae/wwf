@@ -1,19 +1,26 @@
 #!/usr/bin/env python
 import os
 from copy import deepcopy
+from itertools import izip_longest
 from optparse import OptionParser
 from scrabble import make_board,top_moves,read_dictionary
 
 
-def show_board(board, play=None):
-  if not play:
-    for row in board:
-      print ''.join(row)
-  else:
+def board_rows(board, play=None):
+  if play:
     b = deepcopy(board)
     for (r,c),x in play:
       b[r][c] = x.lower()
-    show_board(b)
+    return board_rows(b)
+  return [''.join(row) for row in board]
+
+
+def print_blocks(blocks, num_cols=4):
+  slices = [blocks[start::num_cols] for start in xrange(num_cols)]
+  for bs in izip_longest(*slices):
+    for rs in zip(*filter(None, bs)):
+      print ' | '.join(rs)
+    print ''
 
 
 def main():
@@ -29,10 +36,12 @@ def main():
       not all(x.isalpha() or x == '.' for x in hand)):
     op.error('Invalid hand: must be 1 to 7 letters or blanks (.)')
   word_list = read_dictionary(os.path.dirname(__file__))
+  blocks = []
   for score, words, play in top_moves(board, word_list, hand, opts.num_plays):
-    print score, ', '.join(words)
-    show_board(board, play)
-    print ''
+    header = ('%d %s' % (score, ', '.join(words))).center(15)
+    # TODO: add padding when len(header) > 15
+    blocks.append([header] + board_rows(board, play))
+  print_blocks(blocks)
 
 if __name__ == '__main__':
   main()
