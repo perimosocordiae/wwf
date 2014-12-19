@@ -10,7 +10,7 @@ def board_rows(board, play=None):
   if play:
     b = deepcopy(board)
     for (r,c),x in play:
-      b[r][c] = x.lower()
+      b[r][c] = '\033[95m' + x.lower() + '\033[0m'
     return board_rows(b)
   return [''.join(row) for row in board]
 
