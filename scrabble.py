@@ -129,8 +129,8 @@ def shrink_wordlist(wordlist, hand):
   return set(w for w in wordlist if any(h in w for h in hand))
 
 
-def positive_scoring_moves(board,wordlist,hand):
-  if '.' not in hand:
+def positive_scoring_moves(board,wordlist,hand,prune_words):
+  if prune_words and '.' not in hand:
     pre_size = len(wordlist)
     tic = time.time()
     wordlist = shrink_wordlist(wordlist, hand)
@@ -166,8 +166,9 @@ def read_dictionary(path=''):
   return set(x.strip().upper() for x in open(pjoin(path,WORDS_FILE)))
 
 
-def top_moves(board,wordlist,hand,n=20):
+def top_moves(board, wordlist, hand, n=20, prune_words=True):
   assert 1 <= len(hand) <= 7
-  moves = positive_scoring_moves(board,wordlist,hand.encode('ascii').upper())
+  hand = hand.encode('ascii').upper()
+  moves = positive_scoring_moves(board,wordlist,hand,prune_words)
   for score,play in nlargest(n,moves):
     yield score, all_words(board, play), play
