@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import os
+from itertools import islice
 from optparse import OptionParser
 from scrabble import make_board,top_moves,read_dictionary
 from cli import board_rows, print_blocks
@@ -45,7 +46,7 @@ def interactive_play(board, word_list, hand, board_filename):
   genny = gen_blocks(board, word_list, hand)
   while True:
     # Grab and show four plays.
-    chunk, plays = zip(*[next(genny) for _ in xrange(4)])
+    chunk, plays = zip(*tuple(islice(genny, 4)))
     print_blocks(chunk, num_cols=4)
     # Ask for which play the user wants.
     print 'Choose a move (1-%d) or leave blank for more choices' % len(chunk)
