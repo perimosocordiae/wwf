@@ -1,10 +1,4 @@
 *.pyc
 words.txt
+boards/*.board
 
-*.hi
-
-*.o
-
-*.prof
-
-haskell/wwf
