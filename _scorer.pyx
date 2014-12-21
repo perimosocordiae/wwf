@@ -34,12 +34,12 @@ cdef class Scorer:
     for (r,c),_ in play:
       hword = _find_horiz(self.board,playdict,r,c)
       if hword is not None:
-        if hword.letters not in self.wordlist:
+        if hword.letters.upper() not in self.wordlist:
           return 0
         score += hword.score(self.board)
       vword = _find_vert(self.board,playdict,r,c)
       if vword is not None:
-        if vword.letters not in self.wordlist:
+        if vword.letters.upper() not in self.wordlist:
           return 0
         score += vword.score(self.board)
     if len(play) == 7:
@@ -98,10 +98,12 @@ cdef class VertWord:
     return s*mult
 
 
-cdef int letter_value(char x):
-  if x == '.':
+cdef inline int letter_value(char x):
+  cdef int idx = x - 65
+  if idx < 0:
+    # Wilds are represented as lowercase letters
     return 0
-  return LETTER_VALUES[x - 65]
+  return LETTER_VALUES[idx]
 
 
 cdef HorizWord _find_horiz(char[15][15] board, dict playdict, int r, int c):

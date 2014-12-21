@@ -76,7 +76,9 @@ def letter_combos(hand):
     _letter_combos(hand, lcs)
     return lcs
   h = hand.replace('.', '')
-  for wilds in itertools.combinations_with_replacement(string.uppercase,
+  # Make all possible hands by replacing wilds with *lowercase* letters.
+  # The lowercase is what lets downstream scorers know that the letter is wild.
+  for wilds in itertools.combinations_with_replacement(string.lowercase,
                                                        hand.count('.')):
     _letter_combos(h + ''.join(wilds), lcs)
   return lcs

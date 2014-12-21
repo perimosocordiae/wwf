@@ -4,7 +4,7 @@ import string
 __all__ = ['Scorer', 'all_words']
 BINGO_BONUS = 35
 LETTER_VALUES = dict((x,1) for x in string.uppercase)
-for v,ltrs in ((0, '.'), (2, 'DLNU'), (3, 'GHY'), (4, 'BCFMPW'),
+for v,ltrs in ((2, 'DLNU'), (3, 'GHY'), (4, 'BCFMPW'),
                (5, 'KV'), (8, 'X'), (10, 'JQZ')):
   for l in ltrs:
     LETTER_VALUES[l] = v
@@ -29,6 +29,7 @@ class Scorer(object):
     s = 0
     mult = 1
     for x,r,c in word:
+      # lowercase letters aren't in the dict, so they get a score of zero.
       base_val = LETTER_VALUES.get(x, 0)
       space = self.board[r][c]
       s += base_val
