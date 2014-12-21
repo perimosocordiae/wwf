@@ -8,7 +8,9 @@ _A mostly-cheating way to get high scores playing Words With Friends_
 
 ##Usage##
 
-    $ ./cli.py example.board abcdefg
+To test things out, try the simple CLI interface:
+
+    $ ./cli.py boards/example.board abcdefg
     Using Cython (fast) scorer
     0.142285 secs, wordlist shrunk from 172822 to 168006
     0.016330 secs, valid play counts: {1: 23, 2: 61, 3: 74, 4: 85, 5: 94, 6: 99, 7: 96}
@@ -17,7 +19,18 @@ _A mostly-cheating way to get high scores playing Words With Friends_
     60 DECAF, OD, WE
     ...pairs of scores and boards....
 
-Alternatively, run the `web.py`-based frontend:
+For actual use, try the more convenient interactive mode.
+Set up the boardfile to match your game, then run:
+
+    $ ./interactive.py boards/mygame.board
+
+This will prompt you for your hand, then suggest possible moves.
+Once you've selected a move, the boardfile will be updated automatically,
+and you'll be prompted for a new hand. Unless you're playing against yourself,
+you'll need to enter the letters used by your opponent, then select the move
+they made from the options.
+
+If you like a more visual interface, run the `web.py`-based frontend:
 
     ./server.py
 
