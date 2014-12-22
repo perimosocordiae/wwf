@@ -99,11 +99,10 @@ cdef class VertWord:
 
 
 cdef inline int letter_value(char x):
-  cdef int idx = x - 65
-  if idx < 0:
+  if x >= 97:
     # Wilds are represented as lowercase letters
     return 0
-  return LETTER_VALUES[idx]
+  return LETTER_VALUES[x - 65]
 
 
 cdef HorizWord _find_horiz(char[15][15] board, dict playdict, int r, int c):
