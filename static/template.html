@@ -60,7 +60,7 @@ $if moves:
   <table border=1><tr><th>Board</th><th>Info</th></tr>
   $for score,words,play in moves:
     <tr><td>$:board_as_html(board,play)</td>
-    <td style='font-size:$score px'>
+    <td style='font-size:${score}px'>
     $score : ${', '.join(words)}
     <br /><button onclick='window.location="/?play=$play"'>Make play</button>
     </td></tr>
