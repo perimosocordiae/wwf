@@ -18,7 +18,7 @@ WORDS_FILE = 'words.txt'
 BOARD_SIZE = 15
 
 
-def make_board(fh):
+def make_board(fh=None):
   # 2 = double letter, 3 = triple letter
   # @ = double word, # = triple word
   board = map(list, [

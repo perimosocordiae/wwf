@@ -1,36 +1,12 @@
 #!/usr/bin/env python
 import web
-import re
 import os
-from BeautifulSoup import BeautifulSoup as BS
 from scrabble import make_board,top_moves,read_dictionary,BOARD_SIZE
 from scorer import LETTER_VALUES
 
 PATH = os.path.dirname(__file__)
 board_render = web.template.frender(PATH+'/static/board.html')
 tile_render = web.template.frender(PATH+'/static/tile.html')
-
-
-def parse_letter(soup_letter):
-  m = re.search('space_(\d+)_(\d+)',soup_letter['class'])
-  if not m:
-    return
-  c,r = map(int,m.groups())
-  letter,value = soup_letter.text[0],int(soup_letter.text[1:])
-  if value >= 1:
-    letter = letter.upper()
-  return letter,r,c
-
-
-def parse_html(html_blob):
-  soup = BS(html_blob)
-  letters = (parse_letter(x) for x in soup.findAll('div','space') if x.text)
-  hand = (x.find('span','letter') for x in soup.findAll('div','tile'))
-  hand = ''.join(x.text.upper() if x else '.' for x in hand)
-  board = make_board(None)  # makes an empty board
-  for x,r,c in letters:
-    board[r][c] = x
-  return board,hand
 
 
 def board_as_html(board, play=()):
@@ -75,20 +51,25 @@ def board_as_html(board, play=()):
 words = read_dictionary(PATH)
 render = web.template.frender(PATH+'/static/template.html',
                               globals={'board_as_html':board_as_html})
+# Hacky mutable global storage for the current board.
+board_holder = [make_board()]
 
 
 class WWF(object):
   def GET(self):
-    args = web.input(board='',html='',hand='')
-    if args.html:
-      board,hand = parse_html(args.html)
-    elif args.board and args.hand:
-      board = make_board(open(args.board))
-      hand = args.hand.upper()
+    args = web.input(html='',hand='',reset=False)
+    if args.reset:
+      board_holder[0] = make_board()
+    if args.hand:
+      moves = top_moves(board_holder[0],words,args.hand.upper())
     else:
-      return render(args,None,[])
-    moves = top_moves(board,words,hand)
-    return render(args,board,moves)
+      moves = None
+    return render(args.hand, board_holder[0], moves)
+
+  def POST(self):
+    data = web.input(board={})
+    board_holder[0] = make_board(data['board'].file)
+    return render('', board_holder[0], None)
 
 
 if __name__ == '__main__':

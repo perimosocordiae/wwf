@@ -1,19 +1,26 @@
-$def with (args,board,moves)
+$def with (hand,board,moves)
 <head>
-<title>$args.board</title>
+<title>WWF</title>
 <link type="text/css" rel="stylesheet" href="/static/wwf.css">
 </head>
 <body>
+
+<form action="/" method=POST enctype="multipart/form-data">
+Upload a boardfile: <input type=file name=board />
+<input type=submit value="Upload" /></form>
+
+<button onclick="window.location='/?reset=1'">Reset board</button><br />
+
 <form action="/" method=GET>
-<div class=linput>HTML:<input type=text name=html value="$args.html" /> or</div>
-<div class=rinput>File:<input type=text name=board value="$args.board" /><br>
-Hand:<input type=text name=hand value="$args.hand" /></div>
-<input type=submit value="Go!" id='go' />
-</form>
-$if board:
+Hand: <input type=text name=hand value="$hand" />
+<input type=submit value="Go!" id='go' /></form>
+
+$if moves:
   <table border=1><tr><th>Board</th><th>Info</th></tr>
   $for score,words,play in moves:
     <tr><td>$:board_as_html(board,play)</td>
     <td style='font-size:$score px'>$score : ${', '.join(words)}</td></tr>
   </table>
+$elif board:
+  $:board_as_html(board)
 </body>
