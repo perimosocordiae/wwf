@@ -2,6 +2,44 @@ $def with (hand,board,moves)
 <head>
 <title>WWF</title>
 <link type="text/css" rel="stylesheet" href="/static/wwf.css">
+<script type="text/javascript">
+function tile_click(tile, r, c, inc) {
+  var ajax = new window.XMLHttpRequest();
+  var className = 'space_'+r+'_'+c;
+  var letter = tile.children[0].innerText;
+  var code = letter.charCodeAt(0)
+  if (inc == 1) {
+    if (code >= 65 && code < 90) {
+      letter = String.fromCharCode(code + inc);
+    } else if (code == 90) {
+      letter = '';
+    } else {
+      letter = 'A';
+    }
+  } else {
+    if (code > 65 && code <= 90) {
+      letter = String.fromCharCode(code + inc);
+    } else if (code == 65) {
+      letter = '';
+    } else {
+      letter = 'Z';
+    }
+  }
+  ajax.onreadystatechange = function () {
+    if (ajax.readyState == 4 && ajax.status == 200) {
+      if (letter == '') {
+        tile.classList.remove('mf');
+      } else if (tile.className.indexOf('m') < 0) {
+        tile.classList.add('mf');
+      }
+      tile.children[0].innerText = letter;
+      tile.children[0].style.display = '';
+    }
+  }
+  ajax.open('GET', '/tile_click?r='+r+'&c='+c+'&letter='+letter, true);
+  ajax.send();
+}
+</script>
 </head>
 <body>
 
@@ -10,7 +48,9 @@ Upload a boardfile:
 <input type=file name=board
        onchange="document.getElementById('uploader').submit();" /></form>
 
-<button onclick="window.location='/?reset=1'">Reset board</button><br />
+<button onclick="window.location='/?reset=1'">Reset board</button>
+<button onclick="window.open('/active.board');">Download board</button>
+<br />
 
 <form action="/" method=GET>
 Hand: <input type=text name=hand value="$hand" />

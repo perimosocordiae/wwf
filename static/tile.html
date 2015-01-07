@@ -1,6 +1,12 @@
 $def with (letter,recent,stype,mergers,r,c,value)
-<div class="space_${r}_${c} space $stype $mergers $recent">
+<div class="space_${r}_${c} space $stype $mergers $recent"
+     style="cursor:pointer; user-select: none; -webkit-user-select: none;"
+     onclick="tile_click(this,$r,$c,1);"
+     oncontextmenu="tile_click(this,$r,$c,-1); return false;">
 $if letter:
   <span class="tile letter-$letter">$letter</span>
   <span class="points points-$value">$value</span>
+$else:
+  <span class="tile" style="display: none;"></span>
+  <span class="points" style="display: none;"></span>
 </div>

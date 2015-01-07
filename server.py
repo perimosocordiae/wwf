@@ -4,6 +4,7 @@ import os
 import ast
 from scrabble import make_board,top_moves,read_dictionary,BOARD_SIZE
 from scorer import LETTER_VALUES
+from cli import board_rows
 
 PATH = os.path.dirname(__file__)
 board_render = web.template.frender(PATH+'/static/board.html')
@@ -81,6 +82,25 @@ class WWF(object):
     return render('', board_holder[0], None)
 
 
+class TileClicker(object):
+  def GET(self):
+    args = web.input(r='', c='', letter='')
+    r,c = int(args.r), int(args.c)
+    board = board_holder[0]
+    board[r][c] = args.letter.encode('ascii').upper()
+
+
+class BoardDownloader(object):
+  def GET(self):
+    web.header('Content-type', 'test/ascii')
+    return '\n'.join(board_rows(board_holder[0], colors=False))
+
+
 if __name__ == '__main__':
-  app = web.application(('/','WWF'),globals())
+  urls = (
+      '/', 'WWF',
+      '/tile_click', 'TileClicker',
+      '/active.board', 'BoardDownloader'
+  )
+  app = web.application(urls, globals())
   app.run()
