@@ -5,6 +5,12 @@ from itertools import izip_longest
 from optparse import OptionParser
 from scrabble import make_board,top_moves,read_dictionary
 
+try:
+  from colorama import init
+  init()
+except ImportError:
+  pass
+
 
 def board_rows(board, play=None, colors=True):
   if play:
@@ -12,7 +18,7 @@ def board_rows(board, play=None, colors=True):
     for (r,c),x in play:
       x = x.lower()
       if colors:
-        x = '\033[95m' + x + '\033[0m'
+        x = '\033[32m' + x + '\033[0m'
       b[r][c] = x
     return board_rows(b)
   return [''.join(row) for row in board]
