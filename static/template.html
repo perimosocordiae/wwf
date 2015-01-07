@@ -5,9 +5,10 @@ $def with (hand,board,moves)
 </head>
 <body>
 
-<form action="/" method=POST enctype="multipart/form-data">
-Upload a boardfile: <input type=file name=board />
-<input type=submit value="Upload" /></form>
+<form id="uploader" action="/" method=POST enctype="multipart/form-data">
+Upload a boardfile:
+<input type=file name=board
+       onchange="document.getElementById('uploader').submit();" /></form>
 
 <button onclick="window.location='/?reset=1'">Reset board</button><br />
 
