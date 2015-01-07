@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import web
 import os
+import ast
 from scrabble import make_board,top_moves,read_dictionary,BOARD_SIZE
 from scorer import LETTER_VALUES
 
@@ -57,13 +58,21 @@ board_holder = [make_board()]
 
 class WWF(object):
   def GET(self):
-    args = web.input(html='',hand='',reset=False)
+    args = web.input(html='',hand='',reset=False, play='')
+    moves = None
+
+    if args.play:
+      play = ast.literal_eval(args.play)
+      board = board_holder[0]
+      for (r,c),x in play:
+        board[r][c] = x.upper()
+
     if args.reset:
       board_holder[0] = make_board()
+
     if args.hand:
       moves = top_moves(board_holder[0],words,args.hand.upper())
-    else:
-      moves = None
+
     return render(args.hand, board_holder[0], moves)
 
   def POST(self):
