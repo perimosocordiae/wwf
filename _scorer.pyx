@@ -13,18 +13,25 @@ cdef:
 
 cdef class Scorer:
   cdef char[15][15] board
-  cdef set wordlist
+  cdef dict wordlist
 
   def __init__(self, list board, set wordlist):
-    self.wordlist = wordlist
     cdef int i, j
     cdef list row
-    cdef bytes space
+    cdef bytes space, w
     for i in range(BOARD_SIZE):
       row = board[i]
       for j in range(BOARD_SIZE):
         space = row[j]
         self.board[i][j] = (<char*>space)[0]
+    # group into subsets, by word length
+    self.wordlist = dict()
+    for w in wordlist:
+      i = len(w)
+      if i in self.wordlist:
+        self.wordlist[i].add(w)
+      else:
+        self.wordlist[i] = set([w])
 
   cpdef int score_play(self, play):
     cdef int score = 0, r, c
@@ -34,12 +41,12 @@ cdef class Scorer:
     for (r,c),_ in play:
       hword = _find_horiz(self.board,playdict,r,c)
       if hword is not None:
-        if hword.letters.upper() not in self.wordlist:
+        if hword.letters.upper() not in self.wordlist[hword.length]:
           return 0
         score += hword.score(self.board)
       vword = _find_vert(self.board,playdict,r,c)
       if vword is not None:
-        if vword.letters.upper() not in self.wordlist:
+        if vword.letters.upper() not in self.wordlist[vword.length]:
           return 0
         score += vword.score(self.board)
     if len(play) == 7:
@@ -53,16 +60,10 @@ cdef class Scorer:
     cdef dict playdict = dict(zip(play_loc, '.......'))
     for (r,c) in play_loc:
       hword = _find_horiz(self.board,playdict,r,c)
-      if hword is not None:
-        if _word_playable(hword.letters, hword.length, self.wordlist):
-          continue
-        # Valid word but not playable.
+      if (hword is not None and not _word_playable(hword.letters, hword.length, self.wordlist[hword.length])):
         return False
       vword = _find_vert(self.board,playdict,r,c)
-      if vword is not None:
-        if _word_playable(vword.letters, vword.length, self.wordlist):
-          continue
-        # Valid word but not playable.
+      if (vword is not None and not _word_playable(vword.letters, vword.length, self.wordlist[vword.length])):
         return False
     return True
 
@@ -73,8 +74,6 @@ cdef char _word_playable(char* word_tpl, int word_len, set wordlist):
   cdef int i
   cdef char wild = '.'
   for x in wordlist:
-    if len(x) != word_len:
-      continue
     x_ptr = x
     for i in range(word_len):
       if word_tpl[i] != wild and word_tpl[i] != x_ptr[i]:

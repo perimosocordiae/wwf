@@ -1,4 +1,5 @@
 from itertools import chain
+from collections import defaultdict
 import string
 import re
 
@@ -14,13 +15,16 @@ for v,ltrs in ((2, 'DLNU'), (3, 'GHY'), (4, 'BCFMPW'),
 class Scorer(object):
   def __init__(self, board, wordlist):
     self.board = board
-    self.wordlist = wordlist
+    # group into subsets, by word length
+    self.wordlist = defaultdict(set)
+    for w in wordlist:
+      self.wordlist[len(w)].add(w)
     self._playable_cache = set()
 
   def score_play(self, play):
     score = 0
     for w in all_words_raw(self.board, play):
-      if word_to_string(w) not in self.wordlist:
+      if word_to_string(w) not in self.wordlist[len(w)]:
         return 0
       score += self._score_word(w)
     if len(play) == 7:
@@ -52,7 +56,7 @@ class Scorer(object):
       if word_tpl in self._playable_cache:
         continue
       patt = re.compile(word_tpl + '$', re.IGNORECASE)
-      for x in self.wordlist:
+      for x in self.wordlist[len(w)]:
         if patt.match(x):
           self._playable_cache.add(word_tpl)
           break
