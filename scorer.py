@@ -1,5 +1,6 @@
 from itertools import chain
 import string
+import re
 
 __all__ = ['Scorer', 'all_words']
 BINGO_BONUS = 35
@@ -14,6 +15,7 @@ class Scorer(object):
   def __init__(self, board, wordlist):
     self.board = board
     self.wordlist = wordlist
+    self._playable_cache = set()
 
   def score_play(self, play):
     score = 0
@@ -42,6 +44,21 @@ class Scorer(object):
       elif space == '#':
         mult *= 3
     return s*mult
+
+  def is_playable(self, play_loc):
+    play_tpl = zip(play_loc, '.......')
+    for w in all_words_raw(self.board, play_tpl):
+      word_tpl = word_to_string(w)
+      if word_tpl in self._playable_cache:
+        continue
+      patt = re.compile(word_tpl + '$', re.IGNORECASE)
+      for x in self.wordlist:
+        if patt.match(x):
+          self._playable_cache.add(word_tpl)
+          break
+      else:  # no valid words were playable
+          return False
+    return True
 
 
 def all_words(board, play):

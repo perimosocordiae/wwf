@@ -46,6 +46,43 @@ cdef class Scorer:
       score += BINGO_BONUS
     return score
 
+  cpdef char is_playable(self, play_loc):
+    cdef int r, c
+    cdef HorizWord hword
+    cdef VertWord vword
+    cdef dict playdict = dict(zip(play_loc, '.......'))
+    for (r,c) in play_loc:
+      hword = _find_horiz(self.board,playdict,r,c)
+      if hword is not None:
+        if _word_playable(hword.letters, hword.length, self.wordlist):
+          continue
+        # Valid word but not playable.
+        return False
+      vword = _find_vert(self.board,playdict,r,c)
+      if vword is not None:
+        if _word_playable(vword.letters, vword.length, self.wordlist):
+          continue
+        # Valid word but not playable.
+        return False
+    return True
+
+
+cdef char _word_playable(char* word_tpl, int word_len, set wordlist):
+  cdef bytes x
+  cdef char* x_ptr
+  cdef int i
+  cdef char wild = '.'
+  for x in wordlist:
+    if len(x) != word_len:
+      continue
+    x_ptr = x
+    for i in range(word_len):
+      if word_tpl[i] != wild and word_tpl[i] != x_ptr[i]:
+        break
+    else:
+      return True
+  return False
+
 
 cdef class HorizWord:
   cdef char[16] letters

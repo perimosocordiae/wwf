@@ -146,6 +146,15 @@ def positive_scoring_moves(board,wordlist,hand,prune_words):
   play_counts = dict((n,len(p)) for n,p in plays.iteritems())
   print "%f secs, valid play counts: %s" % (toc-tic, play_counts)
 
+  scorer = Scorer(board, wordlist)
+
+  tic = time.time()
+  for i,pp in plays.iteritems():
+    pp[:] = filter(scorer.is_playable, pp)
+  toc = time.time()
+  play_counts = dict((n,len(p)) for n,p in plays.iteritems())
+  print "%f secs, valid play counts: %s" % (toc-tic, play_counts)
+
   tic = time.time()
   lcs = letter_combos(hand)
   toc = time.time()
@@ -153,7 +162,6 @@ def positive_scoring_moves(board,wordlist,hand,prune_words):
   print "%f secs, letter combos: %s" % (toc-tic, lc_counts)
 
   tic = time.time()
-  scorer = Scorer(board, wordlist)
   num_moves = 0
   for move in valid_moves(plays, lcs):
     num_moves += 1
