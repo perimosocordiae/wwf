@@ -90,15 +90,15 @@ def _letter_combos(hand, lcs):
     lcs[len(combo_types)].update(itertools.permutations(combo_types))
 
 
-def valid_plays(board):
+def valid_plays(board, hand_length):
   # precompute possible play locations
-  valid_plays = dict((n,[]) for n in xrange(1,8))
+  valid_plays = dict((n,[]) for n in xrange(1,hand_length+1))
   for r,c in itertools.product(xrange(BOARD_SIZE),xrange(BOARD_SIZE)):
     if board[r][c].isalpha():
       continue
     h_play,v_play = [],[]
     ri,ci = r,c
-    for _ in xrange(7):
+    for _ in xrange(hand_length):
       h_play.append((r,ci))
       if next_to_existing(board,h_play):
         valid_plays[len(h_play)].append(tuple(h_play))
@@ -107,7 +107,7 @@ def valid_plays(board):
         ci += 1
       if ci == BOARD_SIZE:
         break
-    for _ in xrange(7):
+    for _ in xrange(hand_length):
       v_play.append((ri,c))
       # Avoid double-adding length-1 plays here.
       if len(v_play) > 1 and next_to_existing(board,v_play):
@@ -141,7 +141,7 @@ def positive_scoring_moves(board,wordlist,hand,prune_words):
         toc-tic, pre_size, len(wordlist))
 
   tic = time.time()
-  plays = valid_plays(board)
+  plays = valid_plays(board, len(hand))
   toc = time.time()
   play_counts = dict((n,len(p)) for n,p in plays.iteritems())
   print "%f secs, valid play counts: %s" % (toc-tic, play_counts)
