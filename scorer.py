@@ -13,13 +13,18 @@ for v,ltrs in ((2, 'DLNU'), (3, 'GHY'), (4, 'BCFMPW'),
 
 
 class Scorer(object):
-  def __init__(self, board, wordlist):
+  def __init__(self, board, wordlist, hand):
     self.board = board
     # group into subsets, by word length
     self.wordlist = defaultdict(set)
     for w in wordlist:
       self.wordlist[len(w)].add(w)
     self._playable_cache = set()
+    # prep the hand regexp
+    if '.' in hand:
+      self.hand_patt = '[A-Z]'
+    else:
+      self.hand_patt = '[%s]' % hand
 
   def score_play(self, play):
     score = 0
@@ -55,7 +60,7 @@ class Scorer(object):
       word_tpl = word_to_string(w)
       if word_tpl in self._playable_cache:
         continue
-      patt = re.compile(word_tpl + '$', re.IGNORECASE)
+      patt = re.compile(word_tpl.replace('.', self.hand_patt) + '$', re.I)
       for x in self.wordlist[len(w)]:
         if patt.match(x):
           self._playable_cache.add(word_tpl)

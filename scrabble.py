@@ -146,7 +146,7 @@ def positive_scoring_moves(board,wordlist,hand,prune_words):
   play_counts = dict((n,len(p)) for n,p in plays.iteritems())
   print "%f secs, valid play counts: %s" % (toc-tic, play_counts)
 
-  scorer = Scorer(board, wordlist)
+  scorer = Scorer(board, wordlist, hand)
 
   tic = time.time()
   for i,pp in plays.iteritems():

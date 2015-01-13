@@ -14,11 +14,14 @@ cdef:
 cdef class Scorer:
   cdef char[15][15] board
   cdef dict wordlist
+  cdef int[27] hand_ct  # holds counts for each letter + wild in the hand
 
-  def __init__(self, list board, set wordlist):
+  def __init__(self, list board, set wordlist, bytes hand):
     cdef int i, j
     cdef list row
     cdef bytes space, w
+    cdef char* hand_ptr
+    # parse the board
     for i in range(BOARD_SIZE):
       row = board[i]
       for j in range(BOARD_SIZE):
@@ -32,6 +35,16 @@ cdef class Scorer:
         self.wordlist[i].add(w)
       else:
         self.wordlist[i] = set([w])
+    # count occurrences of each letter
+    hand_ptr = hand
+    for i in range(27):
+      self.hand_ct[i] = 0
+    for i in range(len(hand)):
+      if hand_ptr[i] == '.':
+        self.hand_ct[26] += 1
+      else:
+        self.hand_ct[hand_ptr[i]-65] += 1
+
 
   cpdef int score_play(self, play):
     cdef int score = 0, r, c
@@ -60,23 +73,35 @@ cdef class Scorer:
     cdef dict playdict = dict(zip(play_loc, '.......'))
     for (r,c) in play_loc:
       hword = _find_horiz(self.board,playdict,r,c)
-      if (hword is not None and not _word_playable(hword.letters, hword.length, self.wordlist[hword.length])):
+      if (hword is not None and not _word_playable(hword.letters, hword.length,
+                                                         self.wordlist[hword.length],
+                                                         self.hand_ct)):
         return False
       vword = _find_vert(self.board,playdict,r,c)
-      if (vword is not None and not _word_playable(vword.letters, vword.length, self.wordlist[vword.length])):
+      if (vword is not None and not _word_playable(vword.letters, vword.length,
+                                                        self.wordlist[vword.length],
+                                                        self.hand_ct)):
         return False
     return True
 
 
-cdef char _word_playable(char* word_tpl, int word_len, set wordlist):
-  cdef bytes x
+cdef char _word_playable(char* word_tpl, int word_len, set wordlist, int* hand_ct):
+  cdef bytes word
   cdef char* x_ptr
-  cdef int i
-  cdef char wild = '.'
-  for x in wordlist:
-    x_ptr = x
+  cdef int i, j
+  cdef char w, x
+  for word in wordlist:
+    x_ptr = word
     for i in range(word_len):
-      if word_tpl[i] != wild and word_tpl[i] != x_ptr[i]:
+      w = word_tpl[i]
+      x = x_ptr[i]
+      if w == x:
+        continue
+      if w == '.':
+        # Just check if the hand includes this letter (or any wilds)
+        if hand_ct[x - 65] == 0 and hand_ct[26] == 0:
+          break
+      else:
         break
     else:
       return True
