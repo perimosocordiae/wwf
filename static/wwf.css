@@ -3,6 +3,8 @@ form { font-size: large; margin-top: 1em; }
 #hand { font-size: larger; text-align: center; }
 #uploader { display: inline; }
 .makePlay { width: 100%; height: 100%; }
+#inputs { display: inline-block; }
+#title { float: left; font-size: 3em; padding: 1em 0.5em 0 0; margin: 0; }
 
 body { background: #fff; font: 11px/16px "Helvetica Neue", Helvetica, Arial, sans-serif; margin-top : 15px; *margin-top : 0; position: relative; -webkit-font-smoothing: antialiased; }
 textarea {  resize: none;}

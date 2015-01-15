@@ -44,6 +44,8 @@ function tile_click(tile, r, c, inc) {
 </head>
 <body>
 
+<h1 id="title"><a href="/">WWF</a></h1>
+<div id="inputs">
 <button onclick="window.location='/?reset=1'">Reset</button>
 <button onclick="window.open('/active.board');">Download</button>
 <form id="uploader" action="/" method=POST enctype="multipart/form-data">
@@ -53,6 +55,7 @@ function tile_click(tile, r, c, inc) {
 <form action="/" method=GET>
 <input type=text name=hand value="$hand" id="hand" placeholder="Enter your hand" />
 <input type=submit value="Go!" id='go' /></form>
+</div>
 
 $if moves:
   <table style="border-spacing: 1em; border: 0px;">
