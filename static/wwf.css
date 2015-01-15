@@ -1,7 +1,8 @@
-div.linput { float: left; padding-right: 1em; }
-div.linput input { line-height: 3em; }
-div.rinput { float: left; }
 #go { font-size:large; margin: 0.5em 1em;}
+form { font-size: large; margin-top: 1em; }
+#hand { font-size: larger; text-align: center; }
+#uploader { display: inline; }
+.makePlay { width: 100%; height: 100%; }
 
 body { background: #fff; font: 11px/16px "Helvetica Neue", Helvetica, Arial, sans-serif; margin-top : 15px; *margin-top : 0; position: relative; -webkit-font-smoothing: antialiased; }
 textarea {  resize: none;}
@@ -9,8 +10,6 @@ textarea {  resize: none;}
 a           { color: #f1aa0b; text-decoration: none; }
 a:hover     { cursor: pointer; text-decoration: underline; }
 abbr        { border: none; }
-input       { font: 11px "Helvetica Neue", Helvetica, Arial, sans-serif; }
-input:focus { outline: none; }
 
 /* div.tile            { background: url(/images/desktop/piece.png) -63px 0 no-repeat; color: #4e1c00; cursor: pointer; height: 36px; line-height: 1; overflow: hidden; position: relative; width: 36px; z-index: 100; } */
 div.tile            { color: #4e1c00; cursor: pointer; height: 36px; line-height: 1; overflow: hidden; position: relative; width: 36px; z-index: 100; }
@@ -31,17 +30,6 @@ div.tile .points-0, .space > span.points-0 { display: none; }
 .space > span.points      { font-weight: normal; z-index: 2; }
 .space.recent > span.tile { color: #fff; }
 .space.max_zindex { z-index: 9999; }
-
-/*
-.space > span.badge  { color: #fff, text-shadow: 0 1px 1px #000; z-index: 101; }
-.space > span.badge.score       { background-image: url(badge.png); color: #fff; font-size: 9px; line-height: 14px; right: 0; text-shadow: 0 1px 1px #000; bottom:0px; width: 14px; z-index: 3; }
-.space > span.badge.ds    { color: #fff; text-shadow: 0 1px 1px #000; background-image: url(/images/badge_ds.png); font-size: 13px; line-height: 20px; width: 21px; height: 21px; bottom: -5px; right: -5px;}
-.space > span.badge.ds.three_digits { font-size: 0.9em; }
-.space > span.badge.top_edge  { top: 0; }
-.space > span.badge.right_edge   { right: 0; } 
-.space > span.badge.bottom_edge  { bottom: 0; }
-.space > span.badge.left_edge  { left: 0; }
-*/
 
 .mt { background-position: 0 0; }
 .mb { background-position: -35px 0; }

@@ -43,27 +43,26 @@ function tile_click(tile, r, c, inc) {
 </head>
 <body>
 
+<button onclick="window.location='/?reset=1'">Reset</button>
+<button onclick="window.open('/active.board');">Download</button>
 <form id="uploader" action="/" method=POST enctype="multipart/form-data">
-Upload a boardfile:
 <input type=file name=board
        onchange="document.getElementById('uploader').submit();" /></form>
 
-<button onclick="window.location='/?reset=1'">Reset board</button>
-<button onclick="window.open('/active.board');">Download board</button>
-<br />
-
 <form action="/" method=GET>
-Hand: <input type=text name=hand value="$hand" />
+<input type=text name=hand value="$hand" id="hand" placeholder="Enter your hand" />
 <input type=submit value="Go!" id='go' /></form>
 
 $if moves:
-  <table border=1><tr><th>Board</th><th>Info</th></tr>
+  <table style="border-spacing: 1em; border: 0px;">
   $for score,words,play in moves:
-    <tr><td>$:board_as_html(board,play)</td>
-    <td style='font-size:${score}px'>
-    $score : ${', '.join(words)}
-    <br /><button onclick='window.location="/?play=$play"'>Make play</button>
-    </td></tr>
+    <tr>
+    <td><button class=makePlay onclick='window.location="/?play=$play"'>
+    <h1>$score</h1>
+    $:{'<br />'.join(words)}</button>
+    </td>
+    <td>$:board_as_html(board,play)</td>
+    </tr>
   </table>
 $elif board:
   $:board_as_html(board)

@@ -14,16 +14,19 @@ tile_render = web.template.frender(PATH+'/static/tile.html')
 def board_as_html(board, play=()):
   trans = {'2':'dl','3':'tl','@':'dw','#':'tw','_':''}
   pd = dict(play)
+  clickable = not play
   is_tile = lambda r,c: board[r][c] not in trans or (r,c) in pd
   tiles = []
   for r,row in enumerate(board):
     for c,space in enumerate(row):
-      letter,recent,stype,value = '','','',0
-      if (r,c) in pd:
-        recent = 'recent'
-        letter = pd[(r,c)]
+      pos = (r,c)
+      css_classes = ['space_%d_%d' % pos, 'space']
+      letter, value = '', 0
+      if pos in pd:
+        css_classes.append('recent')
+        letter = pd[pos]
       if space in trans:
-        stype = trans[space]
+        css_classes.append(trans[space])
       else:
         letter = space
       mergers = []
@@ -47,7 +50,8 @@ def board_as_html(board, play=()):
           mergers.append('mbl')
         if r+1<BOARD_SIZE and c+1<BOARD_SIZE and is_tile(r+1,c+1):
           mergers.append('mbr')
-      tiles.append(tile_render(letter,recent,stype,' '.join(mergers),r,c,value))
+      tclass = ' '.join(css_classes + mergers)
+      tiles.append(tile_render(letter, tclass, r, c, value, clickable))
   return board_render(tiles)
 
 words = read_dictionary(PATH)
