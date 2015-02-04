@@ -7,8 +7,8 @@ from scorer import LETTER_VALUES
 from cli import board_rows
 
 PATH = os.path.dirname(__file__)
-board_render = web.template.frender(PATH+'/static/board.html')
-tile_render = web.template.frender(PATH+'/static/tile.html')
+board_render = web.template.frender(os.path.join(PATH,'static/board.html'))
+tile_render = web.template.frender(os.path.join(PATH,'static/tile.html'))
 
 
 def board_as_html(board, play=()):
@@ -55,7 +55,7 @@ def board_as_html(board, play=()):
   return board_render(tiles)
 
 words = read_dictionary(PATH)
-render = web.template.frender(PATH+'/static/template.html',
+render = web.template.frender(os.path.join(PATH,'static/template.html'),
                               globals={'board_as_html':board_as_html})
 # Hacky mutable global storage for the current board.
 board_holder = [make_board()]
