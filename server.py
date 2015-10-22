@@ -82,7 +82,11 @@ class WWF(object):
 
   def POST(self):
     data = web.input(board={})
-    board_holder[0] = make_board(data['board'].file)
+    try:
+      board_holder[0] = make_board(data['board'].file)
+    except ValueError as e:
+      print 'Failed to make the board:'
+      print e
     return render('', board_holder[0], None)
 
 

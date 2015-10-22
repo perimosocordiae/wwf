@@ -2,6 +2,7 @@ from collections import defaultdict
 from heapq import nlargest
 from os.path import join as pjoin
 import itertools
+import os
 import string
 import time
 
@@ -37,13 +38,16 @@ def make_board(fh=None):
       "_2__2_____2__2_",
       "__2__@___@__2__",
       "___#__3_3__#___"])
-  if fh:
-    data = [x.strip('\n').upper() for x in fh]
-    assert len(data) == BOARD_SIZE and len(data[0]) == BOARD_SIZE
-    for r,row in enumerate(data):
-      for c,letter in enumerate(row):
-        if 'A' <= letter <= 'Z':
-          board[r][c] = letter
+  if fh is None:
+    return board
+  data = [x.rstrip(os.linesep).upper() for x in fh]
+  if len(data) != BOARD_SIZE or len(data[0]) != BOARD_SIZE:
+    raise ValueError('Invalid board dimensions: (%d,%d)' % (len(data),
+                                                            len(data([0]))))
+  for r,row in enumerate(data):
+    for c,letter in enumerate(row):
+      if 'A' <= letter <= 'Z':
+        board[r][c] = letter
   return board
 
 
