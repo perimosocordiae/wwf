@@ -13,7 +13,6 @@ a           { color: #f1aa0b; text-decoration: none; }
 a:hover     { cursor: pointer; text-decoration: underline; }
 abbr        { border: none; }
 
-/* div.tile            { background: url(/images/desktop/piece.png) -63px 0 no-repeat; color: #4e1c00; cursor: pointer; height: 36px; line-height: 1; overflow: hidden; position: relative; width: 36px; z-index: 100; } */
 div.tile            { color: #4e1c00; cursor: pointer; height: 36px; line-height: 1; overflow: hidden; position: relative; width: 36px; z-index: 100; }
 div.tile span       { display: block; position: absolute; }
 div.tile .letter    { font-size: 28px; font-weight: bold; left: 0; text-align: center; text-transform: uppercase; top: 5px; width: 30px; z-index: 2; }
@@ -24,9 +23,16 @@ div.tile .points-0, .space > span.points-0 { display: none; }
 .board div.tile { background-position: -99px 0; height: 35px; width: 35px; }
 .board div.tile .letter, .space > span.tile   { font-size: 24px; top: 7px; width: 31px; }
 .board div.tile .points, .space > span.points { font-size: 10px; right: 4px; top: 4px; }
-.board          { background: url(http://wwf-fb.static.zgncdn.com/images/themeboards/board/default.png) no-repeat; height: 525px; position: relative; width: 525px; z-index: 9; }
 
 .space                    { background: url(http://wwf-fb.static.zgncdn.com/images/themeboards/meld/meld_yellow.png) 35px 35px no-repeat; float: left; width: 35px; height: 35px; line-height: 1; position: relative; }
+.board {
+	background: url(https://zdnzwf-a.akamaihd.net/wwf/web/i/9a2a19b0893ed63cc41f.png) no-repeat;
+	background-size: 525px;
+	height: 525px;
+	width: 525px;
+	z-index: 9;
+	position: relative;
+}
 .space > span             { display: block; font-weight: bold; position: absolute; text-align: center; text-transform: uppercase; }
 .space > span.tile        { z-index: 2; }
 .space > span.points      { font-weight: normal; z-index: 2; }
