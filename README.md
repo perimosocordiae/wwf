@@ -1,12 +1,12 @@
-#WWF#
+# WWF
 _A mostly-cheating way to get high scores playing Words With Friends_
 
-##Setup##
+## Setup
 
-    curl http://dotnetperls-controls.googlecode.com/files/enable1.txt >words.txt
+    curl https://raw.githubusercontent.com/dolph/dictionary/master/enable1.txt >words.txt
     cat extra_words.txt >>words.txt
 
-##Usage##
+## Usage
 
 To test things out, try the simple CLI interface:
 
@@ -37,7 +37,7 @@ If you like a more visual interface, run the `web.py`-based frontend:
 Using the Chrome inspector (or view-source, or equivalent) on the Words With Friends page, copy the html for the current active game
 into the appropriate field in <http://localhost:8080/>. If you have an idea for an easier input technique, let me know!
 
-##Performance##
+## Performance
 
 If you try running the `cli.py` script and it prints out something about using
 the slow Python scorer, you have two options to speed up the results:
