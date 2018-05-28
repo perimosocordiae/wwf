@@ -49,8 +49,8 @@ def main():
   word_list = read_dictionary(os.path.dirname(__file__))
   blocks = []
   for score, words, play in top_moves(board, word_list, hand, opts.num_plays):
-    header = ('%d %s' % (score, ', '.join(words))).center(15)
-    # TODO: add padding when len(header) > 15
+    header = ('%d %s' % (score, ', '.join(words))).center(len(board))
+    # TODO: add padding when len(header) > len(board)
     blocks.append([header] + board_rows(board, play))
   print_blocks(blocks, num_cols=opts.num_cols)
 

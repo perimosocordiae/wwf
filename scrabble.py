@@ -16,47 +16,47 @@ except ImportError:
   print 'Using Python (slow) scorer'
 
 WORDS_FILE = 'words.txt'
-
-
-def make_board(fh=None, small=False):
+BOARD_TPLS = {
   # 2 = double letter, 3 = triple letter
   # @ = double word, # = triple word
-  if small:
-    board = map(list, [
-        "3_#_____#_3",
-        "_@___@___@_",
-        "#_2_2_2_2_#",
-        "___3___3___",
-        "__2_____2__",
-        "_@_______@_",
-        "__2_____2__",
-        "___3___3___",
-        "#_2_2_2_2_#",
-        "_@___@___@_",
-        "3_#_____#_3"])
-  else:
-    board = map(list, [
-        "___#__3_3__#___",
-        "__2__@___@__2__",
-        "_2__2_____2__2_",
-        "#__3___@___3__#",
-        "__2___2_2___2__",
-        "_@___3___3___@_",
-        "3___2_____2___3",
-        "___@_______@___",
-        "3___2_____2___3",
-        "_@___3___3___@_",
-        "__2___2_2___2__",
-        "#__3___@___3__#",
-        "_2__2_____2__2_",
-        "__2__@___@__2__",
-        "___#__3_3__#___"])
+  11: ["3_#_____#_3",
+       "_@___@___@_",
+       "#_2_2_2_2_#",
+       "___3___3___",
+       "__2_____2__",
+       "_@_______@_",
+       "__2_____2__",
+       "___3___3___",
+       "#_2_2_2_2_#",
+       "_@___@___@_",
+       "3_#_____#_3"],
+  15: ["___#__3_3__#___",
+       "__2__@___@__2__",
+       "_2__2_____2__2_",
+       "#__3___@___3__#",
+       "__2___2_2___2__",
+       "_@___3___3___@_",
+       "3___2_____2___3",
+       "___@_______@___",
+       "3___2_____2___3",
+       "_@___3___3___@_",
+       "__2___2_2___2__",
+       "#__3___@___3__#",
+       "_2__2_____2__2_",
+       "__2__@___@__2__",
+       "___#__3_3__#___"],
+}
+
+
+def make_board(fh=None):
   if fh is None:
-    return board
+    return map(list, BOARD_TPLS[15])
+
   data = [x.rstrip(os.linesep).upper() for x in fh]
-  if len(data) != len(board) or len(data[0]) != len(board[0]):
+  if len(data) != len(data[0]) or len(data) not in BOARD_TPLS:
     raise ValueError('Invalid board dimensions: (%d,%d)' % (len(data),
                                                             len(data[0])))
+  board = map(list, BOARD_TPLS[len(data)])
   for r,row in enumerate(data):
     for c,letter in enumerate(row):
       if 'A' <= letter <= 'Z':
