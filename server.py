@@ -2,7 +2,7 @@
 import web
 import os
 import ast
-from scrabble import make_board,top_moves,read_dictionary,BOARD_SIZE
+from scrabble import make_board,top_moves,read_dictionary
 from scorer import LETTER_VALUES
 from cli import board_rows
 
@@ -16,6 +16,7 @@ def board_as_html(board, play=()):
   pd = dict(play)
   clickable = not play
   is_tile = lambda r,c: board[r][c] not in trans or (r,c) in pd
+  board_size = len(board)
   tiles = []
   for r,row in enumerate(board):
     for c,space in enumerate(row):
@@ -32,23 +33,23 @@ def board_as_html(board, play=()):
       mergers = []
       if letter:
         value = LETTER_VALUES.get(letter, 0)
-        if r>0 and is_tile(r-1,c):
+        if r > 0 and is_tile(r-1,c):
           mergers.append('mt')
-        if r+1<BOARD_SIZE and is_tile(r+1,c):
+        if r+1 < board_size and is_tile(r+1,c):
           mergers.append('mb')
-        if c>0 and is_tile(r,c-1):
+        if c > 0 and is_tile(r,c-1):
           mergers.append('ml')
-        if c+1<BOARD_SIZE and is_tile(r,c+1):
+        if c+1 < board_size and is_tile(r,c+1):
           mergers.append('mr')
         if mergers == ['mt','mb','ml','mr']:
           mergers = ['mf']
-        if r>0 and c>0 and is_tile(r-1,c-1):
+        if r > 0 and c > 0 and is_tile(r-1,c-1):
           mergers.append('mtl')
-        if r>0 and c+1<BOARD_SIZE and is_tile(r-1,c+1):
+        if r > 0 and c+1 < board_size and is_tile(r-1,c+1):
           mergers.append('mtr')
-        if r+1<BOARD_SIZE and c>0 and is_tile(r+1,c-1):
+        if r+1 < board_size and c > 0 and is_tile(r+1,c-1):
           mergers.append('mbl')
-        if r+1<BOARD_SIZE and c+1<BOARD_SIZE and is_tile(r+1,c+1):
+        if r+1 < board_size and c+1 < board_size and is_tile(r+1,c+1):
           mergers.append('mbr')
       tclass = ' '.join(css_classes + mergers)
       tiles.append(tile_render(letter, tclass, r, c, value, clickable))
