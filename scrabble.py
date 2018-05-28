@@ -16,34 +16,47 @@ except ImportError:
   print 'Using Python (slow) scorer'
 
 WORDS_FILE = 'words.txt'
-BOARD_SIZE = 15
 
 
-def make_board(fh=None):
+def make_board(fh=None, small=False):
   # 2 = double letter, 3 = triple letter
   # @ = double word, # = triple word
-  board = map(list, [
-      "___#__3_3__#___",
-      "__2__@___@__2__",
-      "_2__2_____2__2_",
-      "#__3___@___3__#",
-      "__2___2_2___2__",
-      "_@___3___3___@_",
-      "3___2_____2___3",
-      "___@_______@___",
-      "3___2_____2___3",
-      "_@___3___3___@_",
-      "__2___2_2___2__",
-      "#__3___@___3__#",
-      "_2__2_____2__2_",
-      "__2__@___@__2__",
-      "___#__3_3__#___"])
+  if small:
+    board = map(list, [
+        "3_#_____#_3",
+        "_@___@___@_",
+        "#_2_2_2_2_#",
+        "___3___3___",
+        "__2_____2__",
+        "_@_______@_",
+        "__2_____2__",
+        "___3___3___",
+        "#_2_2_2_2_#",
+        "_@___@___@_",
+        "3_#_____#_3"])
+  else:
+    board = map(list, [
+        "___#__3_3__#___",
+        "__2__@___@__2__",
+        "_2__2_____2__2_",
+        "#__3___@___3__#",
+        "__2___2_2___2__",
+        "_@___3___3___@_",
+        "3___2_____2___3",
+        "___@_______@___",
+        "3___2_____2___3",
+        "_@___3___3___@_",
+        "__2___2_2___2__",
+        "#__3___@___3__#",
+        "_2__2_____2__2_",
+        "__2__@___@__2__",
+        "___#__3_3__#___"])
   if fh is None:
     return board
   data = [x.rstrip(os.linesep).upper() for x in fh]
-  if len(data) != BOARD_SIZE or len(data[0]) != BOARD_SIZE:
+  if len(data) != len(board) or len(data[0]) != len(board[0]):
     raise ValueError('Invalid board dimensions: (%d,%d)' % (len(data),
-                                                            len(data([0]))))
+                                                            len(data[0])))
   for r,row in enumerate(data):
     for c,letter in enumerate(row):
       if 'A' <= letter <= 'Z':
@@ -52,15 +65,16 @@ def make_board(fh=None):
 
 
 def next_to_existing(board,play):
-  mid = BOARD_SIZE//2
+  board_size = len(board)
+  mid = board_size // 2
   for r,c in play:
     if r > 0 and board[r-1][c].isalpha():
       return True
     if c > 0 and board[r][c-1].isalpha():
       return True
-    if r < BOARD_SIZE-1 and board[r+1][c].isalpha():
+    if r < board_size-1 and board[r+1][c].isalpha():
       return True
-    if c < BOARD_SIZE-1 and board[r][c+1].isalpha():
+    if c < board_size-1 and board[r][c+1].isalpha():
       return True
     # also check if this is the first word
     if r == mid and c == mid:
@@ -95,9 +109,10 @@ def _letter_combos(hand, lcs):
 
 
 def valid_plays(board, hand_length):
+  board_size = len(board)
   # precompute possible play locations
   valid_plays = dict((n,[]) for n in xrange(1,hand_length+1))
-  for r,c in itertools.product(xrange(BOARD_SIZE),xrange(BOARD_SIZE)):
+  for r,c in itertools.product(xrange(board_size), xrange(board_size)):
     if board[r][c].isalpha():
       continue
     h_play,v_play = [],[]
@@ -107,9 +122,9 @@ def valid_plays(board, hand_length):
       if next_to_existing(board,h_play):
         valid_plays[len(h_play)].append(tuple(h_play))
       ci += 1
-      while ci < BOARD_SIZE and board[r][ci].isalpha():
+      while ci < board_size and board[r][ci].isalpha():
         ci += 1
-      if ci == BOARD_SIZE:
+      if ci == board_size:
         break
     for _ in xrange(hand_length):
       v_play.append((ri,c))
@@ -117,9 +132,9 @@ def valid_plays(board, hand_length):
       if len(v_play) > 1 and next_to_existing(board,v_play):
         valid_plays[len(v_play)].append(tuple(v_play))
       ri += 1
-      while ri < BOARD_SIZE and board[ri][c].isalpha():
+      while ri < board_size and board[ri][c].isalpha():
         ri += 1
-      if ri == BOARD_SIZE:
+      if ri == board_size:
         break
   return valid_plays
 
