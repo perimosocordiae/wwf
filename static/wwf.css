@@ -24,12 +24,20 @@ div.tile .points-0, .space > span.points-0 { display: none; }
 .board div.tile .letter, .space > span.tile   { font-size: 24px; top: 7px; width: 31px; }
 .board div.tile .points, .space > span.points { font-size: 10px; right: 4px; top: 4px; }
 .board {
+	z-index: 9;
+	position: relative;
+}
+.board-15 {
 	background: url(https://zdnzwf-a.akamaihd.net/wwf/web/i/9a2a19b0893ed63cc41f.png) no-repeat;
 	background-size: 525px;
 	height: 525px;
 	width: 525px;
-	z-index: 9;
-	position: relative;
+}
+.board-11 {
+	border: 1px solid;  /* TODO: get a better background */
+	background-size: 385px;
+	height: 385px;
+	width: 385px;
 }
 
 .space {

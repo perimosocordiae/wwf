@@ -53,7 +53,7 @@ def board_as_html(board, play=()):
           mergers.append('mbr')
       tclass = ' '.join(css_classes + mergers)
       tiles.append(tile_render(letter, tclass, r, c, value, clickable))
-  return board_render(tiles)
+  return board_render(tiles, board_size)
 
 words = read_dictionary(PATH)
 render = web.template.frender(os.path.join(PATH,'static/template.html'),
