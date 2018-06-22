@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import os
 from itertools import islice
 from optparse import OptionParser
@@ -19,16 +20,21 @@ def main():
       hand = ask_for_hand()
       interactive_play(board, word_list, hand, args[0])
     except KeyboardInterrupt:
-      print ''
+      print()
       break
 
 
 def ask_for_hand():
+  try:
+    input_ = raw_input
+  except NameError:
+    input_ = input
+
   while True:
-    hand = raw_input('Enter your hand: ').upper()
+    hand = input_('Enter your hand: ').upper()
     if (len(hand) < 1 or len(hand) > 7 or
         not all(x.isalpha() or x == '.' for x in hand)):
-      print 'Invalid hand: must be 1 to 7 letters or blanks (.)'
+      print('Invalid hand: must be 1 to 7 letters or blanks (.)')
       continue
     return hand
 
@@ -49,7 +55,7 @@ def interactive_play(board, word_list, hand, board_filename):
     chunk, plays = zip(*tuple(islice(genny, 4)))
     print_blocks(chunk, num_cols=4)
     # Ask for which play the user wants.
-    print 'Choose a move (1-%d) or leave blank for more choices' % len(chunk)
+    print('Choose a move (1-%d) or leave blank for more choices' % len(chunk))
     resp = raw_input().strip()
     try:
       idx = int(resp) - 1
@@ -60,7 +66,7 @@ def interactive_play(board, word_list, hand, board_filename):
     choice = plays[idx]
     new_boardfile = '\n'.join(board_rows(board, choice, colors=False))
     with open(board_filename, 'w') as fh:
-      print >>fh, new_boardfile
+      print(new_boardfile, file=fh)
     return
   # TODO: handle this case better. It's unlikely, but it shouldn't error out.
   assert False, 'You looked at all the moves and chose none of them!'

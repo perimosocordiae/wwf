@@ -1,7 +1,11 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import os
 from copy import deepcopy
-from itertools import izip_longest
+try:
+  from itertools import zip_longest
+except ImportError:
+  from itertools import izip_longest
 from optparse import OptionParser
 from scrabble import make_board,top_moves,read_dictionary
 
@@ -28,8 +32,8 @@ def print_blocks(blocks, num_cols=4):
   slices = [blocks[start::num_cols] for start in xrange(num_cols)]
   for bs in izip_longest(*slices):
     for rs in zip(*filter(None, bs)):
-      print ' | '.join(rs)
-    print ''
+      print(' | '.join(rs))
+    print()
 
 
 def main():

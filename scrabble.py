@@ -10,10 +10,10 @@ try:
   import pyximport
   pyximport.install()
   from _scorer import Scorer, all_words
-  print 'Using Cython (fast) scorer'
-except ImportError:
+  print('Using Cython (fast) scorer')
+except ImportError as e:
   from scorer import Scorer, all_words
-  print 'Using Python (slow) scorer'
+  print('Using Python (slow) scorer')
 
 WORDS_FILE = 'words.txt'
 BOARD_TPLS = {
@@ -56,7 +56,7 @@ def make_board(fh=None):
   if len(data) != len(data[0]) or len(data) not in BOARD_TPLS:
     raise ValueError('Invalid board dimensions: (%d,%d)' % (len(data),
                                                             len(data[0])))
-  board = map(list, BOARD_TPLS[len(data)])
+  board = list(map(list, BOARD_TPLS[len(data)]))
   for r,row in enumerate(data):
     for c,letter in enumerate(row):
       if 'A' <= letter <= 'Z':
@@ -85,7 +85,7 @@ def next_to_existing(board,play):
 def powerset_nonempty(seq):
   s = list(seq)
   return itertools.chain.from_iterable(itertools.combinations(s, r)
-                                       for r in xrange(1,len(s)+1))
+                                       for r in range(1,len(s)+1))
 
 
 def letter_combos(hand):
@@ -111,13 +111,13 @@ def _letter_combos(hand, lcs):
 def valid_plays(board, hand_length):
   board_size = len(board)
   # precompute possible play locations
-  valid_plays = dict((n,[]) for n in xrange(1,hand_length+1))
-  for r,c in itertools.product(xrange(board_size), xrange(board_size)):
+  valid_plays = dict((n,[]) for n in range(1,hand_length+1))
+  for r,c in itertools.product(range(board_size), range(board_size)):
     if board[r][c].isalpha():
       continue
     h_play,v_play = [],[]
     ri,ci = r,c
-    for _ in xrange(hand_length):
+    for _ in range(hand_length):
       h_play.append((r,ci))
       if next_to_existing(board,h_play):
         valid_plays[len(h_play)].append(tuple(h_play))
@@ -126,7 +126,7 @@ def valid_plays(board, hand_length):
         ci += 1
       if ci == board_size:
         break
-    for _ in xrange(hand_length):
+    for _ in range(hand_length):
       v_play.append((ri,c))
       # Avoid double-adding length-1 plays here.
       if len(v_play) > 1 and next_to_existing(board,v_play):
@@ -156,14 +156,14 @@ def positive_scoring_moves(board,wordlist,hand,prune_words):
     tic = time.time()
     wordlist = shrink_wordlist(wordlist, hand)
     toc = time.time()
-    print '%f secs, wordlist shrunk from %d to %d' % (
-        toc-tic, pre_size, len(wordlist))
+    print('%f secs, wordlist shrunk from %d to %d' % (
+          toc-tic, pre_size, len(wordlist)))
 
   tic = time.time()
   plays = valid_plays(board, len(hand))
   toc = time.time()
-  play_counts = dict((n,len(p)) for n,p in plays.iteritems())
-  print "%f secs, valid play counts: %s" % (toc-tic, play_counts)
+  play_counts = dict((n,len(p)) for n,p in plays.items())
+  print('%f secs, valid play counts: %s' % (toc-tic, play_counts))
 
   scorer = Scorer(board, wordlist, hand)
 
@@ -171,14 +171,14 @@ def positive_scoring_moves(board,wordlist,hand,prune_words):
   for i,pp in plays.iteritems():
     pp[:] = filter(scorer.is_playable, pp)
   toc = time.time()
-  play_counts = dict((n,len(p)) for n,p in plays.iteritems())
-  print "%f secs, valid play counts: %s" % (toc-tic, play_counts)
+  play_counts = dict((n,len(p)) for n,p in plays.items())
+  print('%f secs, valid play counts: %s' % (toc-tic, play_counts))
 
   tic = time.time()
   lcs = letter_combos(hand)
   toc = time.time()
-  lc_counts = dict((n,len(lc)) for n,lc in lcs.iteritems())
-  print "%f secs, letter combos: %s" % (toc-tic, lc_counts)
+  lc_counts = dict((n,len(lc)) for n,lc in lcs.items())
+  print('%f secs, letter combos: %s' % (toc-tic, lc_counts))
 
   tic = time.time()
   num_moves = 0
@@ -186,13 +186,13 @@ def positive_scoring_moves(board,wordlist,hand,prune_words):
     num_moves += 1
     score = scorer.score_play(move)
     if score > 0:
-      yield score,move
+      yield score, move
   toc = time.time()
-  print "%f secs, scored %d moves" % (toc-tic, num_moves)
+  print('%f secs, scored %d moves' % (toc-tic, num_moves))
 
 
 def read_dictionary(path=''):
-  return set(x.strip().upper() for x in open(pjoin(path,WORDS_FILE)))
+  return set(x.strip().upper() for x in open(pjoin(path,WORDS_FILE), 'rb'))
 
 
 def top_moves(board, wordlist, hand, n=20, prune_words=True):
