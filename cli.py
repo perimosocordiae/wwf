@@ -5,7 +5,7 @@ from copy import deepcopy
 try:
   from itertools import zip_longest
 except ImportError:
-  from itertools import izip_longest
+  from itertools import izip_longest as zip_longest
 from optparse import OptionParser
 from scrabble import make_board,top_moves,read_dictionary
 
@@ -22,17 +22,17 @@ def board_rows(board, play=None, colors=True):
     for (r,c),x in play:
       x = x.lower()
       if colors:
-        x = '\033[32m' + x + '\033[0m'
+        x = b'\033[32m' + x + b'\033[0m'
       b[r][c] = x
     return board_rows(b)
-  return [''.join(row) for row in board]
+  return [b''.join(row).decode('utf8') for row in board]
 
 
 def print_blocks(blocks, num_cols=4):
-  slices = [blocks[start::num_cols] for start in xrange(num_cols)]
-  for bs in izip_longest(*slices):
+  slices = [blocks[start::num_cols] for start in range(num_cols)]
+  for bs in zip_longest(*slices):
     for rs in zip(*filter(None, bs)):
-      print(' | '.join(rs))
+      print(*rs, sep=' | ')
     print()
 
 
@@ -53,7 +53,8 @@ def main():
   word_list = read_dictionary(os.path.dirname(__file__))
   blocks = []
   for score, words, play in top_moves(board, word_list, hand, opts.num_plays):
-    header = ('%d %s' % (score, ', '.join(words))).center(len(board))
+    word_list = b', '.join(words).decode('utf8')
+    header = ('%d %s' % (score, word_list)).center(len(board))
     # TODO: add padding when len(header) > len(board)
     blocks.append([header] + board_rows(board, play))
   print_blocks(blocks, num_cols=opts.num_cols)

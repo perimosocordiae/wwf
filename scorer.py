@@ -55,7 +55,7 @@ class Scorer(object):
     return s*mult
 
   def is_playable(self, play_loc):
-    play_tpl = zip(play_loc, '.......')
+    play_tpl = {loc: b'.' for loc in play_loc}
     for w in all_words_raw(self.board, play_tpl):
       word_tpl = word_to_string(w)
       if word_tpl in self._playable_cache:

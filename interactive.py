@@ -43,12 +43,17 @@ def gen_blocks(board, word_list, hand):
   # Generates an almost-infinite sequences of (block, play) pairs.
   for score, words, play in top_moves(board, word_list, hand, 999,
                                       prune_words=False):
-    header = ('%d %s' % (score, ', '.join(words))).center(15)
+    word_list = b', '.join(words).decode('utf8')
+    header = ('%d %s' % (score, word_list)).center(len(board))
     block = [header] + board_rows(board, play)
     yield block, play
 
 
 def interactive_play(board, word_list, hand, board_filename):
+  try:
+    input_ = raw_input
+  except NameError:
+    input_ = input
   genny = gen_blocks(board, word_list, hand)
   while True:
     # Grab and show four plays.
@@ -56,7 +61,7 @@ def interactive_play(board, word_list, hand, board_filename):
     print_blocks(chunk, num_cols=4)
     # Ask for which play the user wants.
     print('Choose a move (1-%d) or leave blank for more choices' % len(chunk))
-    resp = raw_input().strip()
+    resp = input_().strip()
     try:
       idx = int(resp) - 1
       assert 0 <= idx < len(chunk)

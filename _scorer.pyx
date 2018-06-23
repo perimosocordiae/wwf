@@ -44,7 +44,7 @@ cdef class Scorer:
     for i in range(27):
       self.hand_ct[i] = 0
     for i in range(len(hand)):
-      if hand_ptr[i] == '.':
+      if hand_ptr[i] == b'.':
         self.hand_ct[26] += 1
       else:
         self.hand_ct[hand_ptr[i]-65] += 1
@@ -74,7 +74,9 @@ cdef class Scorer:
     cdef int r, c
     cdef HorizWord hword
     cdef VertWord vword
-    cdef dict playdict = dict(zip(play_loc, '.......'))
+    cdef dict playdict = {}
+    for loc in play_loc:
+      playdict[loc] = b'.'
     for (r,c) in play_loc:
       hword = _find_horiz(self.board,playdict,r,c)
       if (hword is not None and not _word_playable(hword.letters, hword.length,
@@ -101,7 +103,7 @@ cdef char _word_playable(char* word_tpl, int word_len, set wordlist, int* hand_c
       x = x_ptr[i]
       if w == x:
         continue
-      if w == '.':
+      if w == b'.':
         # Just check if the hand includes this letter (or any wilds)
         if hand_ct[x - 65] == 0 and hand_ct[26] == 0:
           break
@@ -127,13 +129,13 @@ cdef class HorizWord:
       base_val = letter_value(letters[i])
       space = board[r, c_idxs[i]]
       s += base_val
-      if space == '2':
+      if space == b'2':
         s += base_val
-      elif space == '3':
+      elif space == b'3':
         s += 2*base_val
-      elif space == '@':
+      elif space == b'@':
         mult *= 2
-      elif space == '#':
+      elif space == b'#':
         mult *= 3
     return s*mult
 
@@ -152,13 +154,13 @@ cdef class VertWord:
       base_val = letter_value(letters[i])
       space = board[r_idxs[i], c]
       s += base_val
-      if space == '2':
+      if space == b'2':
         s += base_val
-      elif space == '3':
+      elif space == b'3':
         s += 2*base_val
-      elif space == '@':
+      elif space == b'@':
         mult *= 2
-      elif space == '#':
+      elif space == b'#':
         mult *= 3
     return s*mult
 
@@ -176,7 +178,7 @@ cdef HorizWord _find_horiz(char[:,::1] board, dict playdict, int r, int c):
   cdef char space
   while ci > 0:
     space = board[r, ci-1]
-    if space >= 'A' and space <= 'Z':
+    if space >= b'A' and space <= b'Z':
       ci -= 1
     else:
       break
@@ -187,7 +189,7 @@ cdef HorizWord _find_horiz(char[:,::1] board, dict playdict, int r, int c):
   cdef bytes tmp
   while ci < board_size:
     space = board[r, ci]
-    if space >= 'A' and space <= 'Z':
+    if space >= b'A' and space <= b'Z':
       w.letters[i] = space
       w.c_idxs[i] = ci
     elif (r,ci) in playdict:
@@ -211,7 +213,7 @@ cdef VertWord _find_vert(char[:,::1] board, dict playdict, int r, int c):
   cdef char space
   while ri > 0:
     space = board[ri-1, c]
-    if space >= 'A' and space <= 'Z':
+    if space >= b'A' and space <= b'Z':
       ri -= 1
     else:
       break
@@ -222,7 +224,7 @@ cdef VertWord _find_vert(char[:,::1] board, dict playdict, int r, int c):
   cdef bytes tmp
   while ri < board_size:
     space = board[ri, c]
-    if space >= 'A' and space <= 'Z':
+    if space >= b'A' and space <= b'Z':
       w.letters[i] = space
       w.r_idxs[i] = ri
     elif (ri,c) in playdict:

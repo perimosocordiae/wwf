@@ -50,17 +50,19 @@ BOARD_TPLS = {
 
 def make_board(fh=None):
   if fh is None:
-    return map(list, BOARD_TPLS[15])
-
-  data = [x.rstrip(os.linesep).upper() for x in fh]
-  if len(data) != len(data[0]) or len(data) not in BOARD_TPLS:
-    raise ValueError('Invalid board dimensions: (%d,%d)' % (len(data),
+    data = []
+    board_size = 15
+  else:
+    data = [x.rstrip(os.linesep).upper() for x in fh]
+    board_size = len(data)
+    if len(data) != len(data[0]) or len(data) not in BOARD_TPLS:
+      raise ValueError('Invalid board dimensions: (%d,%d)' % (len(data),
                                                             len(data[0])))
-  board = list(map(list, BOARD_TPLS[len(data)]))
+  board = [[bytes(x, 'ascii') for x in row] for row in BOARD_TPLS[board_size]]
   for r,row in enumerate(data):
     for c,letter in enumerate(row):
       if 'A' <= letter <= 'Z':
-        board[r][c] = letter
+        board[r][c] = letter.encode('ascii')
   return board
 
 
@@ -90,19 +92,21 @@ def powerset_nonempty(seq):
 
 def letter_combos(hand):
   lcs = defaultdict(set)
-  if '.' not in hand:
+  num_wild = hand.count(b'.')
+  if num_wild == 0:
     _letter_combos(hand, lcs)
     return lcs
-  h = hand.replace('.', '')
+  h = hand.replace(b'.', b'')
   # Make all possible hands by replacing wilds with *lowercase* letters.
   # The lowercase is what lets downstream scorers know that the letter is wild.
   for wilds in itertools.combinations_with_replacement(string.lowercase,
-                                                       hand.count('.')):
-    _letter_combos(h + ''.join(wilds), lcs)
+                                                       num_wild):
+    _letter_combos(h + b''.join(wilds), lcs)
   return lcs
 
 
 def _letter_combos(hand, lcs):
+  hand = [bytes([c]) for c in hand]
   # Assumes no wildcards, updates lcs in place!
   for combo_types in powerset_nonempty(hand):
     lcs[len(combo_types)].update(itertools.permutations(combo_types))
@@ -140,9 +144,9 @@ def valid_plays(board, hand_length):
 
 
 def valid_moves(valid_plays, lcs):
-  for i,combos in lcs.iteritems():
+  for i,combos in lcs.items():
     for letters,play in itertools.product(combos, valid_plays[i]):
-      yield zip(play,letters)
+      yield list(zip(play, letters))
 
 
 def shrink_wordlist(wordlist, hand):
@@ -151,7 +155,7 @@ def shrink_wordlist(wordlist, hand):
 
 
 def positive_scoring_moves(board,wordlist,hand,prune_words):
-  if prune_words and '.' not in hand:
+  if prune_words and b'.' not in hand:
     pre_size = len(wordlist)
     tic = time.time()
     wordlist = shrink_wordlist(wordlist, hand)
@@ -168,7 +172,7 @@ def positive_scoring_moves(board,wordlist,hand,prune_words):
   scorer = Scorer(board, wordlist, hand)
 
   tic = time.time()
-  for i,pp in plays.iteritems():
+  for i,pp in plays.items():
     pp[:] = filter(scorer.is_playable, pp)
   toc = time.time()
   play_counts = dict((n,len(p)) for n,p in plays.items())
