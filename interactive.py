@@ -6,6 +6,11 @@ from optparse import OptionParser
 from scrabble import make_board,top_moves,read_dictionary
 from cli import board_rows, print_blocks
 
+try:
+  input_ = raw_input
+except NameError:
+  input_ = input
+
 
 def main():
   op = OptionParser(usage='%prog boardfile')
@@ -25,11 +30,6 @@ def main():
 
 
 def ask_for_hand():
-  try:
-    input_ = raw_input
-  except NameError:
-    input_ = input
-
   while True:
     hand = input_('Enter your hand: ').upper()
     if (len(hand) < 1 or len(hand) > 7 or
@@ -50,10 +50,6 @@ def gen_blocks(board, word_list, hand):
 
 
 def interactive_play(board, word_list, hand, board_filename):
-  try:
-    input_ = raw_input
-  except NameError:
-    input_ = input
   genny = gen_blocks(board, word_list, hand)
   while True:
     # Grab and show four plays.
