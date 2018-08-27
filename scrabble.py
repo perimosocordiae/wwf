@@ -1,3 +1,4 @@
+from __future__ import print_function, absolute_import, division
 from collections import defaultdict
 from heapq import nlargest
 from os.path import join as pjoin
@@ -58,7 +59,7 @@ def make_board(fh=None):
     if len(data) != len(data[0]) or len(data) not in BOARD_TPLS:
       raise ValueError('Invalid board dimensions: (%d,%d)' % (len(data),
                                                             len(data[0])))
-  board = [[bytes(x, 'ascii') for x in row] for row in BOARD_TPLS[board_size]]
+  board = [[x.encode('ascii') for x in row] for row in BOARD_TPLS[board_size]]
   for r,row in enumerate(data):
     for c,letter in enumerate(row):
       if 'A' <= letter <= 'Z':
