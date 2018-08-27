@@ -107,7 +107,7 @@ def letter_combos(hand):
 
 
 def _letter_combos(hand, lcs):
-  hand = [bytes([c]) for c in hand]
+  hand = [c.encode('ascii') for c in hand]
   # Assumes no wildcards, updates lcs in place!
   for combo_types in powerset_nonempty(hand):
     lcs[len(combo_types)].update(itertools.permutations(combo_types))

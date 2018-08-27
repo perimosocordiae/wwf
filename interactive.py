@@ -53,7 +53,12 @@ def interactive_play(board, word_list, hand, board_filename):
   genny = gen_blocks(board, word_list, hand)
   while True:
     # Grab and show four plays.
-    chunk, plays = zip(*tuple(islice(genny, 4)))
+    top_blocks = tuple(islice(genny, 4))
+    if not top_blocks:
+      print('No moves available.')
+      return
+
+    chunk, plays = zip(*top_blocks)
     print_blocks(chunk, num_cols=4)
     # Ask for which play the user wants.
     print('Choose a move (1-%d) or leave blank for more choices' % len(chunk))

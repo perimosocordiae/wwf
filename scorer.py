@@ -83,7 +83,7 @@ def all_words_raw(board, play):
 
 
 def word_to_string(word):
-  return ''.join(x for x,r,c in word).upper()
+  return b''.join(x for x,r,c in word).upper()
 
 
 def find_words(board,playdict,r,c):
