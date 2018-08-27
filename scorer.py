@@ -56,7 +56,7 @@ class Scorer(object):
     return s*mult
 
   def is_playable(self, play_loc):
-    play_tpl = {loc: b'.' for loc in play_loc}
+    play_tpl = [(loc, b'.') for loc in play_loc]
     for w in all_words_raw(self.board, play_tpl):
       word_tpl = word_to_string(w)
       if word_tpl in self._playable_cache:
@@ -77,8 +77,9 @@ def all_words(board, play):
 
 def all_words_raw(board, play):
   pd = dict(play)
-  words = (find_words(board,pd,r,c) for (r,c),x in play)
-  return chain.from_iterable(words)
+  for (r, c), x in play:
+    for word in find_words(board, pd, r, c):
+      yield word
 
 
 def word_to_string(word):
