@@ -4,7 +4,6 @@ from heapq import nlargest
 from os.path import join as pjoin
 import itertools
 import os
-import string
 import time
 
 try:
@@ -59,11 +58,11 @@ def make_board(fh=None):
     if len(data) != len(data[0]) or len(data) not in BOARD_TPLS:
       raise ValueError('Invalid board dimensions: (%d,%d)' % (len(data),
                                                             len(data[0])))
-  board = [[x.encode('ascii') for x in row] for row in BOARD_TPLS[board_size]]
+  board = [[x for x in row] for row in BOARD_TPLS[board_size]]
   for r,row in enumerate(data):
     for c,letter in enumerate(row):
       if 'A' <= letter <= 'Z':
-        board[r][c] = letter.encode('ascii')
+        board[r][c] = letter
   return board
 
 
@@ -93,21 +92,21 @@ def powerset_nonempty(seq):
 
 def letter_combos(hand):
   lcs = defaultdict(set)
-  num_wild = hand.count(b'.')
+  num_wild = hand.count('.')
   if num_wild == 0:
     _letter_combos(hand, lcs)
     return lcs
-  h = hand.replace(b'.', b'')
+  h = hand.replace('.', '')
   # Make all possible hands by replacing wilds with *lowercase* letters.
   # The lowercase is what lets downstream scorers know that the letter is wild.
-  for wilds in itertools.combinations_with_replacement(string.lowercase,
-                                                       num_wild):
-    _letter_combos(h + b''.join(wilds), lcs)
+  lowercase = 'abcdefghijklmnopqrstuvwxyz'
+  for wilds in itertools.combinations_with_replacement(lowercase, num_wild):
+    _letter_combos(h + ''.join(wilds), lcs)
   return lcs
 
 
 def _letter_combos(hand, lcs):
-  hand = [c.encode('ascii') for c in hand]
+  hand = [c for c in hand]
   # Assumes no wildcards, updates lcs in place!
   for combo_types in powerset_nonempty(hand):
     lcs[len(combo_types)].update(itertools.permutations(combo_types))
@@ -156,7 +155,7 @@ def shrink_wordlist(wordlist, hand):
 
 
 def positive_scoring_moves(board,wordlist,hand,prune_words):
-  if prune_words and b'.' not in hand:
+  if prune_words and '.' not in hand:
     pre_size = len(wordlist)
     tic = time.time()
     wordlist = shrink_wordlist(wordlist, hand)
@@ -197,12 +196,12 @@ def positive_scoring_moves(board,wordlist,hand,prune_words):
 
 
 def read_dictionary(path=''):
-  return set(x.strip().upper() for x in open(pjoin(path,WORDS_FILE), 'rb'))
+  return set(x.strip().upper() for x in open(pjoin(path,WORDS_FILE)))
 
 
 def top_moves(board, wordlist, hand, n=20, prune_words=True):
   assert 1 <= len(hand) <= 7
-  hand = hand.encode('ascii').upper()
+  hand = hand.upper()
   moves = positive_scoring_moves(board,wordlist,hand,prune_words)
   for score,play in nlargest(n,moves):
     yield score, all_words(board, play), play

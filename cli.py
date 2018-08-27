@@ -22,10 +22,10 @@ def board_rows(board, play=None, colors=True):
     for (r,c),x in play:
       x = x.lower()
       if colors:
-        x = b'\033[32m' + x + b'\033[0m'
+        x = '\033[32m' + x + '\033[0m'
       b[r][c] = x
     return board_rows(b)
-  return [b''.join(row).decode('utf8') for row in board]
+  return [''.join(row) for row in board]
 
 
 def print_blocks(blocks, num_cols=4):
@@ -53,7 +53,7 @@ def main():
   word_list = read_dictionary(os.path.dirname(__file__))
   blocks = []
   for score, words, play in top_moves(board, word_list, hand, opts.num_plays):
-    word_list = b', '.join(words).decode('utf8')
+    word_list = ', '.join(words)
     header = ('%d %s' % (score, word_list)).center(len(board))
     # TODO: add padding when len(header) > len(board)
     blocks.append([header] + board_rows(board, play))

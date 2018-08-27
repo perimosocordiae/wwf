@@ -43,7 +43,7 @@ def gen_blocks(board, word_list, hand):
   # Generates an almost-infinite sequences of (block, play) pairs.
   for score, words, play in top_moves(board, word_list, hand, 999,
                                       prune_words=False):
-    word_list = b', '.join(words).decode('utf8')
+    word_list = ', '.join(words)
     header = ('%d %s' % (score, word_list)).center(len(board))
     block = [header] + board_rows(board, play)
     yield block, play

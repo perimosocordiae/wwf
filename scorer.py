@@ -1,12 +1,11 @@
 from __future__ import print_function, absolute_import, division
 from itertools import chain
 from collections import defaultdict
-import string
 import re
 
 __all__ = ['Scorer', 'all_words']
 BINGO_BONUS = 35
-LETTER_VALUES = dict((x,1) for x in string.uppercase)
+LETTER_VALUES = dict((x,1) for x in 'AEIORST')
 for v,ltrs in ((2, 'DLNU'), (3, 'GHY'), (4, 'BCFMPW'),
                (5, 'KV'), (8, 'X'), (10, 'JQZ')):
   for l in ltrs:
@@ -56,7 +55,7 @@ class Scorer(object):
     return s*mult
 
   def is_playable(self, play_loc):
-    play_tpl = [(loc, b'.') for loc in play_loc]
+    play_tpl = [(loc, '.') for loc in play_loc]
     for w in all_words_raw(self.board, play_tpl):
       word_tpl = word_to_string(w)
       if word_tpl in self._playable_cache:
@@ -83,7 +82,7 @@ def all_words_raw(board, play):
 
 
 def word_to_string(word):
-  return b''.join(x for x,r,c in word).upper()
+  return ''.join(x for x,r,c in word).upper()
 
 
 def find_words(board,playdict,r,c):

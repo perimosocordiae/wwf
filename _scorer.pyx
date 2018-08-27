@@ -17,33 +17,37 @@ cdef class Scorer:
   cdef dict wordlist
   cdef int[27] hand_ct  # holds counts for each letter + wild in the hand
 
-  def __init__(self, list board, set wordlist, bytes hand):
+  def __init__(self, list board, set wordlist, str hand):
     cdef int i, j
     cdef list row
+    cdef str word
     cdef bytes space, w
     cdef char* hand_ptr
     cdef int board_size = len(board)
+    cdef int hand_size = len(hand)
+    cdef bytes hand_bytes = hand.encode('ascii')
     self.board = cvarray(shape=(board_size, board_size), itemsize=sizeof(char),
                          format='c')
     # parse the board
     for i in range(board_size):
       row = board[i]
       for j in range(board_size):
-        space = row[j]
+        space = row[j].encode('ascii')
         self.board[i,j] = (<char*>space)[0]
     # group into subsets, by word length
     self.wordlist = dict()
-    for w in wordlist:
+    for word in wordlist:
+      w = word.encode('ascii')
       i = len(w)
       if i in self.wordlist:
         self.wordlist[i].add(w)
       else:
         self.wordlist[i] = set([w])
     # count occurrences of each letter
-    hand_ptr = hand
+    hand_ptr = hand_bytes
     for i in range(27):
       self.hand_ct[i] = 0
-    for i in range(len(hand)):
+    for i in range(hand_size):
       if hand_ptr[i] == b'.':
         self.hand_ct[26] += 1
       else:
@@ -54,7 +58,7 @@ cdef class Scorer:
     cdef int score = 0, r, c
     cdef HorizWord hword
     cdef VertWord vword
-    cdef dict playdict = dict(play)
+    cdef dict playdict = {loc: w.encode('ascii') for loc, w in play}
     for (r,c),_ in play:
       hword = _find_horiz(self.board,playdict,r,c)
       if hword is not None:
@@ -252,19 +256,19 @@ cpdef list all_words(list board, play):
   for i in range(board_size):
     row = board[i]
     for j in range(board_size):
-      space = row[j]
+      space = row[j].encode('ascii')
       _board[i, j] = (<char*>space)[0]
 
   cdef HorizWord hword
   cdef VertWord vword
-  cdef dict playdict = dict(play)
+  cdef dict playdict = {loc: w.encode('ascii') for loc, w in play}
   cdef int r, c
   cdef list ret = []
   for (r,c),_ in play:
     hword = _find_horiz(_board,playdict,r,c)
     if hword is not None:
-      ret.append(hword.letters)
+      ret.append(hword.letters.decode('ascii'))
     vword = _find_vert(_board,playdict,r,c)
     if vword is not None:
-      ret.append(vword.letters)
+      ret.append(vword.letters.decode('ascii'))
   return ret
