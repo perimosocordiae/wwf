@@ -8,11 +8,10 @@ from scorer import LETTER_VALUES
 from cli import board_rows
 
 app = Flask(__name__)
-PATH = os.path.dirname(__file__)
-words = read_dictionary(PATH)
 
-# Hacky mutable global storage for the current board.
-board_holder = [make_board()]
+# Mutable global storage attributes.
+app.words = read_dictionary(os.path.dirname(__file__))
+app.board = make_board()
 
 
 def board_as_html(board, play=()):
@@ -86,26 +85,25 @@ def main_page():
 
         if "play" in request.args:
             play = ast.literal_eval(request.args["play"])
-            board = board_holder[0]
             for (r, c), x in play:
-                board[r][c] = x.upper()
+                app.board[r][c] = x.upper()
 
         if request.args.get("reset", False):
-            board_holder[0] = make_board()
+            app.board = make_board()
 
         if "hand" in request.args:
             hand = request.args["hand"].upper()
-            moves = top_moves(board_holder[0], words, hand)
+            moves = top_moves(app.board, app.words, hand)
 
-        return render(request.args.get("hand", ""), board_holder[0], moves)
+        return render(request.args.get("hand", ""), app.board, moves)
 
     def POST():
         try:
-            board_holder[0] = make_board(request.files["board"])
+            app.board = make_board(request.files["board"])
         except ValueError as e:
             print("Failed to make the board:")
             print(e)
-        return render("", board_holder[0], None)
+        return render("", app.board, None)
 
     if request.method == "POST":
         return POST()
@@ -114,7 +112,7 @@ def main_page():
 
 @app.route("/tile_click")
 def tile_clicker():
-    board = board_holder[0]
+    board = app.board
     r = int(request.args["r"])
     c = int(request.args["c"])
     board[r][c] = request.args["letter"].upper()
@@ -123,6 +121,6 @@ def tile_clicker():
 
 @app.route("/active.board")
 def board_downloader():
-    resp = make_response("\n".join(board_rows(board_holder[0], colors=False)))
+    resp = make_response("\n".join(board_rows(app.board, colors=False)))
     resp.headers["Content-type"] = "test/ascii"
     return resp
