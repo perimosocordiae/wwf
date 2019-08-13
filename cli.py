@@ -57,7 +57,7 @@ def main():
     opts, args = op.parse_args()
     if len(args) != 2:
         op.error("Must provide boardfile and hand as arguments")
-    board = make_board(open(args[0]))
+    board = make_board(open(args[0], 'rb'))
     hand = args[1].upper()
     if len(hand) < 1 or len(hand) > 7 or not all(x.isalpha() or x == "." for x in hand):
         op.error("Invalid hand: must be 1 to 7 letters or blanks (.)")
