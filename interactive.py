@@ -20,7 +20,7 @@ def main():
     word_list = read_dictionary(os.path.dirname(__file__))
     # Keep reading the boardfile, asking for a hand, then suggesting plays.
     while True:
-        board = make_board(open(args[0]))
+        board = make_board(open(args[0], 'rb'))
         try:
             hand = ask_for_hand()
             interactive_play(board, word_list, hand, args[0])
