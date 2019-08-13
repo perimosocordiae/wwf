@@ -1,8 +1,8 @@
-$def with (hand,board,moves)
 <head>
 <title>WWF</title>
 <meta name="viewport" content="width=550,user-scalable=yes">
-<link type="text/css" rel="stylesheet" href="/static/wwf.css">
+<link type="text/css" rel="stylesheet"
+      href="{{url_for('static', filename='wwf.css')}}">
 <script type="text/javascript">
 function tile_click(tile, r, c, inc) {
   var ajax = new window.XMLHttpRequest();
@@ -40,6 +40,9 @@ function tile_click(tile, r, c, inc) {
   ajax.open('GET', '/tile_click?r='+r+'&c='+c+'&letter='+letter, true);
   ajax.send();
 }
+function play_button(play_repr) {
+  window.location = "/?play=" + play_repr;
+}
 </script>
 </head>
 <body>
@@ -53,21 +56,26 @@ function tile_click(tile, r, c, inc) {
        onchange="document.getElementById('uploader').submit();" /></form>
 
 <form action="/" method=GET>
-<input type=text name=hand value="$hand" id="hand" placeholder="Enter your hand" />
+<input type=text name=hand value="{{hand}}" id="hand" placeholder="Enter your hand" />
 <input type=submit value="Go!" id='go' /></form>
 </div>
 
-$if moves:
+{% if moves %}
   <table style="border-spacing: 1em; border: 0px;">
-  $for score,words,play in moves:
+  {% for score, words, play in moves %}
     <tr>
-    <td><button class=makePlay onclick='window.location="/?play=$play"'>
-    <h1>$score</h1>
-    $:{'<br />'.join(words)}</button>
+    <td><button class=makePlay onclick='play_button("{{play}}");'>
+    <h1>{{score}}</h1>
+    {% for word in words %}
+      {{word}}{% if not loop.last %}<br />{% endif %}
+    {% endfor %}
+    </button>
     </td>
-    <td>$:board_as_html(board,play)</td>
+    <td>{{board_as_html(board,play)|safe}}</td>
     </tr>
+  {% endfor %}
   </table>
-$elif board:
-  $:board_as_html(board)
+{% elif board %}
+  {{board_as_html(board)|safe}}
+{% endif %}
 </body>

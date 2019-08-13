@@ -30,12 +30,9 @@ and you'll be prompted for a new hand. Unless you're playing against yourself,
 you'll need to enter the letters used by your opponent, then select the move
 they made from the options.
 
-If you like a more visual interface, run the `web.py`-based frontend:
+If you like a more visual interface, run the `flask`-based frontend:
 
-    ./server.py
-
-Using the Chrome inspector (or view-source, or equivalent) on the Words With Friends page, copy the html for the current active game
-into the appropriate field in <http://localhost:8080/>. If you have an idea for an easier input technique, let me know!
+    FLASK_APP=server.py flask run
 
 ## Performance
 

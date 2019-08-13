@@ -1,15 +1,18 @@
 #!/usr/bin/env python
 from __future__ import print_function, absolute_import, division
-import web
 import os
 import ast
+from flask import Flask, render_template, request, make_response
 from scrabble import make_board,top_moves,read_dictionary
 from scorer import LETTER_VALUES
 from cli import board_rows
 
+app = Flask(__name__)
 PATH = os.path.dirname(__file__)
-board_render = web.template.frender(os.path.join(PATH,'static/board.html'))
-tile_render = web.template.frender(os.path.join(PATH,'static/tile.html'))
+words = read_dictionary(PATH)
+
+# Hacky mutable global storage for the current board.
+board_holder = [make_board()]
 
 
 def board_as_html(board, play=()):
@@ -53,64 +56,60 @@ def board_as_html(board, play=()):
         if r+1 < board_size and c+1 < board_size and is_tile(r+1,c+1):
           mergers.append('mbr')
       tclass = ' '.join(css_classes + mergers)
-      tiles.append(tile_render(letter, tclass, r, c, value, clickable))
-  return board_render(tiles, board_size)
-
-words = read_dictionary(PATH)
-render = web.template.frender(os.path.join(PATH,'static/template.html'),
-                              globals={'board_as_html':board_as_html})
-# Hacky mutable global storage for the current board.
-board_holder = [make_board()]
+      tiles.append(render_template('tile.html', letter=letter,
+                                   tile_class=tclass, r=r, c=c, value=value,
+                                   clickable=clickable))
+  return render_template('board.html', tiles=tiles, size=board_size)
 
 
-class WWF(object):
-  def GET(self):
-    args = web.input(html='',hand='',reset=False, play='')
+@app.route('/', methods=['GET', 'POST'])
+def main_page():
+  def render(hand, board, moves):
+    return render_template('index.html', hand=hand, board=board, moves=moves,
+                           board_as_html=board_as_html)
+
+  def GET():
     moves = None
 
-    if args.play:
-      play = ast.literal_eval(args.play)
+    if 'play' in request.args:
+      play = ast.literal_eval(request.args['play'])
       board = board_holder[0]
       for (r,c),x in play:
         board[r][c] = x.upper()
 
-    if args.reset:
+    if request.args.get('reset', False):
       board_holder[0] = make_board()
 
-    if args.hand:
-      moves = top_moves(board_holder[0],words,args.hand.upper())
+    if 'hand' in request.args:
+      hand = request.args['hand'].upper()
+      moves = top_moves(board_holder[0], words, hand)
 
-    return render(args.hand, board_holder[0], moves)
+    return render(request.args.get('hand', ''), board_holder[0], moves)
 
-  def POST(self):
-    data = web.input(board={})
+  def POST():
     try:
-      board_holder[0] = make_board(data['board'].file)
+      board_holder[0] = make_board(request.files['board'])
     except ValueError as e:
       print('Failed to make the board:')
       print(e)
     return render('', board_holder[0], None)
 
-
-class TileClicker(object):
-  def GET(self):
-    args = web.input(r='', c='', letter='')
-    r,c = int(args.r), int(args.c)
-    board = board_holder[0]
-    board[r][c] = args.letter.encode('ascii').upper()
+  if request.method == 'POST':
+    return POST()
+  return GET()
 
 
-class BoardDownloader(object):
-  def GET(self):
-    web.header('Content-type', 'test/ascii')
-    return '\n'.join(board_rows(board_holder[0], colors=False))
+@app.route('/tile_click')
+def tile_clicker():
+  board = board_holder[0]
+  r = int(request.args['r'])
+  c = int(request.args['c'])
+  board[r][c] = request.args['letter'].upper()
+  return 'OK'
 
 
-if __name__ == '__main__':
-  urls = (
-      '/', 'WWF',
-      '/tile_click', 'TileClicker',
-      '/active.board', 'BoardDownloader'
-  )
-  app = web.application(urls, globals())
-  app.run()
+@app.route('/active.board')
+def board_downloader():
+  resp = make_response('\n'.join(board_rows(board_holder[0], colors=False)))
+  resp.headers['Content-type'] = 'test/ascii'
+  return resp

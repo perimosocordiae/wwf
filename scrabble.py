@@ -53,7 +53,7 @@ def make_board(fh=None):
     data = []
     board_size = 15
   else:
-    data = [x.rstrip(os.linesep).upper() for x in fh]
+    data = [x.decode('ascii').rstrip(os.linesep).upper() for x in fh]
     board_size = len(data)
     if len(data) != len(data[0]) or len(data) not in BOARD_TPLS:
       raise ValueError('Invalid board dimensions: (%d,%d)' % (len(data),
