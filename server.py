@@ -17,7 +17,6 @@ app.board = make_board()
 def board_as_html(board, play=()):
     trans = {"2": "dl", "3": "tl", "@": "dw", "#": "tw", "_": ""}
     pd = dict(play)
-    clickable = not play
     is_tile = lambda r, c: board[r][c] not in trans or (r, c) in pd
     board_size = len(board)
     tiles = []
@@ -25,7 +24,7 @@ def board_as_html(board, play=()):
         for c, space in enumerate(row):
             pos = (r, c)
             css_classes = ["space_%d_%d" % pos, "space"]
-            letter, value = "", 0
+            letter = ""
             if pos in pd:
                 css_classes.append("recent")
                 letter = pd[pos]
@@ -54,6 +53,8 @@ def board_as_html(board, play=()):
                     mergers.append("mbl")
                 if r + 1 < board_size and c + 1 < board_size and is_tile(r + 1, c + 1):
                     mergers.append("mbr")
+            else:
+                value = 0
             tclass = " ".join(css_classes + mergers)
             tiles.append(
                 render_template(
@@ -63,7 +64,7 @@ def board_as_html(board, play=()):
                     r=r,
                     c=c,
                     value=value,
-                    clickable=clickable,
+                    clickable=(not play),
                 )
             )
     return render_template("board.html", tiles=tiles, size=board_size)
