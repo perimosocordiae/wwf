@@ -10,6 +10,7 @@ za
 ew
 oba
 gi
+gis
 zocalo
 spam
 ja
