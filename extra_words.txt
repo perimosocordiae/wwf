@@ -15,6 +15,11 @@ gis
 zocalo
 spam
 ja
+zol
+zols
+dbx
+keyer
+ee
 foxie
 foxies
 payas
